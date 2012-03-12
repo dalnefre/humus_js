@@ -1,0 +1,54 @@
+﻿#
+# Core λ-calculus
+#
+
+CREATE empty_env WITH λ(cust, _).[
+	SEND ? TO cust
+]
+
+LET env_beh(ident, value, next) = λ(cust, ident').[
+	IF $ident' = $ident [
+		SEND value TO cust
+	] ELSE [
+		SEND (cust, ident') TO next 
+	]
+]
+
+LET const_expr_beh(value) = λ(cust, #eval, _).[ 
+	SEND value TO cust 
+]
+
+LET ident_expr_beh(ident) = λ(cust, #eval, env).[ 
+	SEND (cust, ident) TO env 
+]
+
+LET abs_expr_beh(ident, body_expr) = λ(cust, #eval, env).[
+	CREATE closure WITH λ(cust, #apply, arg).[
+		CREATE env' WITH env_beh(ident, arg, env)
+		SEND (cust, #eval, env') TO body_expr
+	]
+	SEND closure TO cust
+]
+
+LET app_expr_beh(abs_expr, arg_expr) = λ(cust, #eval, env).[
+	SEND (k_abs, #eval, env) TO abs_expr
+	CREATE k_abs WITH λabs.[
+		SEND (k_arg, #eval, env) TO arg_expr
+		CREATE k_arg WITH λarg.[
+			SEND (cust, #apply, arg) TO abs
+		]
+	]
+]
+
+# (λx.x)(42) -> 42
+
+CREATE example WITH app_expr_beh(
+	NEW abs_expr_beh(
+		#x,
+		NEW ident_expr_beh(#x)
+	),
+	NEW const_expr_beh(42)
+)
+
+SEND (println, #eval, empty_env) TO example
+

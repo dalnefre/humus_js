@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Humus Simulator/Debugger</title>
+<script language="javascript" type="text/javascript" src="core.js"></script>
+<script language="javascript" type="text/javascript" src="test.js"></script>
+<script language="javascript" type="text/javascript" src="core_test.js"></script>
+<script language="javascript" type="text/javascript" src="actor.js"></script>
+<script language="javascript" type="text/javascript" src="actor_test.js"></script>
+<script language="javascript" type="text/javascript" src="humus.js"></script>
+<script language="javascript" type="text/javascript" src="gen_meta.js"></script>
+<script language="javascript" type="text/javascript" src="gen_json.js"></script>
+<script language="javascript" type="text/javascript" src="hum_xlat.js"></script>
+<script language="javascript" type="text/javascript" src="hum_runtime.js"></script>
+<script language="javascript" type="text/javascript" src="humus_test.js"></script>
+<script type="text/javascript"><!--
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-16421475-1']);
+_gaq.push(['_trackPageview']);
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+//--></script>
+<style type="text/css" media="all"><!--
+#script {
+	color: #003;
+	background: #FFC;
+	margin: 1em;
+	border: solid 1px #CCC;
+}
+#debug {
+	color: #C00;
+	background: #EEE;
+	padding: 0 0.5em;
+/*
+*/
+	display: none;
+}
+#trace {
+	color: #00C;
+	padding: 0 0.5em;
+/*
+	border: dotted 1px gray;
+*/
+	display: none;
+}
+--></style>
+</head>
+<body>
+
+<div style="float:right">
+<div style="margin:.5em;">
+<button id="halt-btn" onclick="Humus.halt_runtime();">Halt</button>
+</div>
+<!--
+-->
+</div>
+<h1><a href="http://dalnefre.com/wp/humus/">Humus</a> Simulator/Debugger</h1>
+
+<pre id="output"></pre>
+
+<button id="exec-btn" onclick="Humus.exec_script('script');" >Execute</button>
+
+<form id="editor" action="#">
+<textarea id="script" name="script" rows="25" cols="80"></textarea>
+</form>
+
+<pre id="log"></pre>
+
+<div style="margin:.5em;">
+<button id="test-btn" onclick="Humus.run_tests();">Run Tests</button>
+<button id="debug-btn" onclick="Humus.toggle_display('debug');">Debug</button>
+<button id="trace-btn" onclick="Humus.toggle_display('trace');">Trace</button>
+<button id="meta-btn" onclick="Humus.select_meta();">Meta</button>
+<button id="jsan-btn" onclick="Humus.select_jsan();">Jsan</button>
+</div>
+
+<!--
+-->
+<pre id="debug">
+DEBUG:
+</pre>
+<!--
+-->
+<pre id="trace">
+TRACE:
+</pre>
+
+</body>
+
+<script type="text/javascript"><!--
+var Humus = (function (self) {
+	var version = '0.7.4 2011-09-28';
+	var DAL = DALNEFRE;
+	var Dictionary = DAL.Dictionary;
+	var HUM = DAL.Humus;
+
+	var run_tests = function () {
+		DAL.run_tests();
+//		DAL.Actor.run_tests();
+		DAL.Humus.run_tests();
+	};
+	var toggle_display = function (id) {
+		var el, s;
+		
+		el = DAL.id(id || 'debug');
+		if (el) {
+			s = el.style;
+			if (s.display === 'block') {
+				s.display = 'none';
+			} else {
+				s.display = 'block';
+			}
+		}
+	};
+
+	self = Dictionary({
+		runtime: HUM.Runtime(HUM.Gen_Meta),
+		select_meta: function () {
+			this.runtime = HUM.Runtime(HUM.Gen_Meta);
+		},
+		select_jsan: function () {
+			this.runtime = HUM.Runtime(HUM.Gen_Json);
+		},
+		exec_script: function (id) {
+			this.runtime.execute(id);
+		},
+		halt_runtime: function () {
+			var el;
+			
+			el = DAL.id('halt-btn');
+			if (el) { el.value = 'Halting'; }
+			this.runtime.config.halt();
+			if (el) { el.value = 'Halted'; }
+			DAL.println(DAL.id('output'), '--RUNTIME-HALTED--');
+		},
+		toggle_display: toggle_display,
+		run_tests: run_tests,
+		version: version
+	});
+	return self;
+})();
+//--></script>
+</html>

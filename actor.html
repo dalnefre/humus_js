@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>JavaScript Actor library - Unit Tests</title>
+<script language="javascript" src="core.js" type="text/javascript"></script>
+<script language="javascript" src="test.js" type="text/javascript"></script>
+<script language="javascript" src="core_test.js" type="text/javascript"></script>
+<script language="javascript" src="actor.js" type="text/javascript"></script>
+<script language="javascript" src="actor_test.js" type="text/javascript"></script>
+<script type="text/javascript"><!--
+function run_tests() {
+	DALNEFRE.run_tests();
+	DALNEFRE.Actor.run_tests();
+}
+//--></script>
+<style type="text/css" media="all"><!--
+#debug {
+	color: #C00;
+	background: #EEE;
+	padding: 0 0.5em;
+/*
+	display: none;
+*/
+}
+#trace {
+	color: #00C;
+	padding: 0 0.5em;
+/*
+	border: dotted 1px gray;
+	display: none;
+*/
+}
+--></style>
+</head>
+<body>
+<h1>JavaScript Actor library</h1>
+<h2>Unit Tests</h2>
+<pre id="log"></pre>
+<button onclick="run_tests();">Run Tests</button>
+<pre id="debug"></pre>
+<pre id="trace"></pre>
+</body>
+</html>

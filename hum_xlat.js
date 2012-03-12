@@ -1,0 +1,607 @@
+﻿/*
+ * hum_xlat.js -- Humus translator (source text -> generated code)
+ *
+ * author: Dale Schumacher <dale.schumacher@gmail.com>
+ * requires: core.js, humus.js
+ */
+
+if (typeof DALNEFRE === 'undefined') {
+	throw Error('Namespace "DALNEFRE" required!');
+}
+if (typeof DALNEFRE.Humus === 'undefined') {
+	throw Error('Namespace "DALNEFRE.Humus" required!');
+}
+if (typeof DALNEFRE.Humus.Xlat !== 'undefined') {
+	throw Error('Module "DALNEFRE.Humus.Xlat" already defined!');
+}
+
+DALNEFRE.Humus.Xlat = (function () {
+	var version = '0.7.3 2011-04-28';
+	var DAL = DALNEFRE;
+//	var log = DAL.log;
+//	var debug = function (msg) {
+//		DAL.debug(msg);
+//		DAL.trace('--?-- '+msg);
+//	};
+	var trace = DAL.trace;
+//	var xtrace = DAL.trace;
+	var xtrace = function (msg) {};  // ignored
+	var Dictionary = DAL.Dictionary;
+//	var Set = DAL.Set;
+//	var Queue = DAL.Queue;
+	var Msg = Dictionary;  // local alias
+	var HUM = DAL.Humus;
+	var UNDEF = HUM.UNDEF;
+	var NIL = HUM.NIL;
+	var Obj = HUM.Obj;
+	var Pr = HUM.Pr;
+
+	var factory;
+	var constructor = function Hum_Xlat(generator) {
+		var GEN = generator;  // local alias
+		var Actor = GEN.Actor;
+		var const_expr_beh = GEN.const_expr_beh;
+		var ident_expr_beh = GEN.ident_expr_beh;
+		var abs_expr_beh = GEN.abs_expr_beh;
+		var app_expr_beh = GEN.app_expr_beh;
+		var pair_expr_beh = GEN.pair_expr_beh;
+		var case_expr_beh = GEN.case_expr_beh;
+		var case_choice_beh = GEN.case_choice_beh;
+		var case_end_beh = GEN.case_end_beh;
+		var if_expr_beh = GEN.if_expr_beh;
+		var let_expr_beh = GEN.let_expr_beh;
+		var block_expr_beh = GEN.block_expr_beh;
+		var now_expr_beh = GEN.now_expr_beh;  // FIXME: non-standard extension
+		var self_expr_beh = GEN.self_expr_beh;
+		var new_expr_beh = GEN.new_expr_beh;
+		var eqtn_beh = GEN.eqtn_beh;
+		var const_ptrn_beh = GEN.const_ptrn_beh;
+		var value_ptrn_beh = GEN.value_ptrn_beh;
+		var ident_ptrn_beh = GEN.ident_ptrn_beh;
+		var any_ptrn_beh = GEN.any_ptrn_beh;
+		var pair_ptrn_beh = GEN.pair_ptrn_beh;
+		var self_ptrn_beh = GEN.self_ptrn_beh;
+		var empty_stmt_beh = GEN.empty_stmt_beh;
+		var stmt_pair_beh = GEN.stmt_pair_beh;
+		var let_stmt_beh = GEN.let_stmt_beh;
+		var send_stmt_beh = GEN.send_stmt_beh;
+		var create_stmt_beh = GEN.create_stmt_beh;
+		var become_stmt_beh = GEN.become_stmt_beh;
+		var throw_stmt_beh = GEN.throw_stmt_beh;
+		var expr_stmt_beh = GEN.expr_stmt_beh;
+		var Scope = (function (self) {
+			var factory;
+			var constructor = function Scope(vars) {
+				this.vars = vars || NIL;
+			}
+			.method('declare', function (ident) {
+				this.vars = Pr(ident, this.vars);
+			});
+
+			factory = function (data) {
+				var self = new constructor(data);
+				
+				self.constructor = constructor;
+				return self;
+			};
+			factory.class = constructor;
+			return factory;
+		})();
+		//
+		// Tokenizer
+		//
+		var start = Obj({
+			value: '<start>',
+			type: 'control'
+		});
+		var end = Obj({
+			value: '<end>',
+			type: 'control'
+		});
+		var token = start;
+		var tokens = [];
+		var token_type = function (token) {
+			var t = token.text;
+			var r;
+
+			token.value = token.text;
+			if ((r = /^(-?\d+)$/.exec(t))) {
+				token.value = parseInt(r[1], 10);
+				token.type = 'number';
+			} else if ((r = /^(\d*)#(\w+)$/.exec(t))) {
+				token.value = parseInt(r[2], r[1]);
+				token.type = 'number';
+			} else if ((r = /^[#$(),.:;=\[\\\]λ]$/.exec(t))) {
+				token.type = 'punct';
+			} else {
+				token.type = 'symbol';
+			}
+			return token;
+		};
+		var tokenize = function (line, lineno) {  // tokenize line, adding to tokens[]
+			var s = line;
+			var p = /(\s*)([#$(),.:;=\[\\\]λ]|(\d*#\w+)|[^#$(),.:;=\[\\\]λ\s]+)/g
+			var r;
+
+			lineno = lineno || 0;
+			s = s.replace(/#\s.*$/, '');  // strip comments
+			s = s.replace(/#$/, '');
+//			s = s.replace(/^\s+/, '');  // strip leading whitespace
+			s = s.replace(/\s+$/, '');  // strip trailing whitespace
+			p.lastIndex = 0;
+			while ((r = p.exec(s))) {
+				var t = r[2];
+				var i = p.lastIndex;
+
+				tokens.push(
+					token_type(Obj({
+						lineno: lineno,
+						start: i - t.length,
+						end: i,
+						space: r[1],
+						text: t
+					}))
+				);
+			}
+		};
+		var lookahead = function () {
+			var t = tokens[0];
+			
+			if (t === undefined) {
+				t = end;
+			}
+			return t;
+		};
+		var advance = function () {
+			var t = lookahead();
+
+			tokens.shift();
+			token = t;
+			xtrace('token: ' + token);
+			return t;
+		};
+		var expect = function (match) {
+			if (token.value !== match) {
+				token.error(match + ' expected.');
+			}
+			advance();
+		};
+		//
+		// Recognizers
+		//
+		var mk_stmt = function (scope) {
+			if (token.value === 'LET') {
+				var eqtn;
+				
+				advance();
+				eqtn = mk_eqtn(scope);
+				if (token.value === 'IN') { // special case for LET/IN expression
+					var expr;
+
+					advance();
+					expr = mk_expr();
+					return Actor(let_expr_beh(eqtn, expr), 'LET/IN');
+				}
+				return Actor(let_stmt_beh(eqtn), 'LET');
+			} else if (token.value === 'SEND') {
+				var m_expr, a_expr;
+				
+				advance();
+				m_expr = mk_expr();
+				expect('TO');
+				a_expr = mk_expr();
+				return Actor(send_stmt_beh(m_expr, a_expr), 'SEND');
+			} else if (token.value === 'AFTER') {
+				var t_expr, m_expr, a_expr;
+				
+				advance();
+				t_expr = mk_expr();
+				expect('SEND');
+				m_expr = mk_expr();
+				expect('TO');
+				a_expr = mk_expr();
+				return Actor(send_stmt_beh(m_expr, a_expr, t_expr), 'AFTER/SEND');
+			} else if (token.value === 'CREATE') {
+				var ident, b_expr;
+
+				advance();
+				ident = mk_ident();
+				expect('WITH');
+				b_expr = mk_expr();
+				if (scope) {
+					scope.declare(ident);
+				}
+				return Actor(create_stmt_beh(ident, b_expr), 'CREATE');
+			} else if (token.value === 'BECOME') {
+				var b_expr;
+
+				advance();
+				b_expr = mk_expr();
+				return Actor(become_stmt_beh(b_expr), 'BECOME');
+			} else if (token.value === 'THROW') {
+				var e_expr;
+
+				advance();
+				e_expr = mk_expr();
+				return Actor(throw_stmt_beh(e_expr), 'THROW');
+			} else {
+				var expr;
+				
+				expr = mk_expr();
+				return Actor(expr_stmt_beh(expr), 'stmt:expr');
+			}
+		};
+		var mk_eqtn = function (scope) {
+			var ident, left, right;
+
+			if ((token.type === 'symbol')
+			 &&	(lookahead().value === '(')) {  // function definition -> rewrite
+				ident = token.value;
+				advance();
+				left = mk_ptrn();
+				expect('=');
+				right = mk_expr();
+				right = Actor(abs_expr_beh(left, right), 'abs');
+				right = Actor(value_ptrn_beh(right), 'ptrn:$');
+				left = Actor(ident_ptrn_beh(ident), 'ptrn:'+ident);
+				if (scope) {
+					scope.declare(ident);
+				}
+			} else {
+				left = mk_ptrn(scope);
+				expect('=');
+				right = mk_ptrn(scope);
+			}
+			return Actor(eqtn_beh(left, right), 'eqtn');
+		};
+		var mk_ptrn = function (scope) {
+			var h_ptrn = mk_pterm(scope);
+			
+			if (token.value === ',') {
+				var t_ptrn;
+				
+				advance();
+				t_ptrn = mk_ptrn(scope);
+				return Actor(pair_ptrn_beh(h_ptrn, t_ptrn), 'ptrn:,');
+			}
+			return h_ptrn;
+		};
+		var mk_pterm = function (scope) {
+			var term;
+				
+			if (token.value === '_') {
+				advance();
+				term = Actor(any_ptrn_beh, 'ptrn:_');
+			} else if (token.value === '$') {
+				advance()
+				term = mk_term();
+				term = Actor(value_ptrn_beh(term), 'ptrn:$');
+			} else if (is_const(token)) {
+				term = mk_const_ptrn();
+			} else if (token.type === 'symbol') {
+				var ident = token.value;
+				
+				advance();
+				if (scope) {
+					scope.declare(ident);
+				}
+				term = Actor(ident_ptrn_beh(ident), 'ptrn:'+ident);
+			} else if (token.value === '(') {
+				advance();
+				if (token.value === ')') {
+					advance();
+					term = Actor(const_ptrn_beh(NIL), 'ptrn:NIL');
+				} else {
+					term = mk_ptrn(scope);
+					expect(')');
+				}
+			} else {
+				token.error('Pattern expected.');
+			}
+			return term;
+		};
+		var mk_const_ptrn = function () {
+			var t = token.type;
+			var v = token.value;
+
+			if (t === 'number') {
+				advance();
+				return Actor(const_ptrn_beh(v), 'ptrn:'+v);
+			}
+			if (v === '#') {
+				var value = advance().value;
+				
+				advance();
+				return Actor(const_ptrn_beh(value), 'ptrn:#'+value);
+			}
+			if ((v === '\\') || (v === 'λ')
+			 || (v === '[')) {
+				var expr = mk_const_expr();  // delegate to expression parser
+
+				return Actor(value_ptrn_beh(expr), 'ptrn:$');
+			}
+			if (v === 'SELF') {
+				return Actor(self_ptrn_beh, 'ptrn:SELF');
+			}
+			if (v === '?') {
+				advance();
+				return Actor(const_ptrn_beh(UNDEF), 'ptrn:?');
+			}
+			if (v === 'TRUE') {
+				advance();
+				return Actor(const_ptrn_beh(true), 'ptrn:TRUE');
+			}
+			if (v === 'FALSE') {
+				advance();
+				return Actor(const_ptrn_beh(false), 'ptrn:FALSE');
+			}
+			if (v === 'NIL') {
+				advance();
+				return Actor(const_ptrn_beh(NIL), 'ptrn:NIL');
+			}
+			token.error('Constant expected.');
+		};
+		var mk_expr = function () {
+			var term, expr;
+			
+			if (token.value === 'LET') {
+				var eqtn;
+				
+				advance();
+				eqtn = mk_eqtn();
+				expect('IN');
+				expr = mk_expr();
+				term = Actor(let_expr_beh(eqtn, expr), 'LET/IN');
+			} else if (token.value === 'IF') {
+				var eqtn, next;
+				
+				advance();
+				eqtn = mk_eqtn();
+				expr = mk_expr();
+				next = mk_if_else();
+				term = Actor(if_expr_beh(eqtn, expr, next), 'IF');
+			} else if (token.value === 'CASE') {
+				var next;
+				
+				advance();
+				expr = mk_expr();
+				expect('OF');
+				next = mk_case_end();
+				term = Actor(case_expr_beh(expr, next), 'CASE');
+			} else {
+				term = mk_term();
+				if (token.value === ',') {
+					var t_expr;
+					
+					advance();
+					expr = mk_expr();
+					term = Actor(pair_expr_beh(term, expr), 'expr:,');
+				}
+			}
+			return term;
+		};
+		var mk_term = function () {
+			var term, expr;
+
+			if (token.value === 'NEW') {
+				advance();
+				expr = mk_term();
+				term = Actor(new_expr_beh(expr), 'NEW');
+			} else if (is_const(token)) {
+				term = mk_const_expr();
+			} else if (token.type === 'symbol') {
+				var ident = token.value;
+				
+				advance();
+				term = Actor(ident_expr_beh(ident), ident);
+				term = mk_call(term);
+			} else if (token.value === '(') {  // grouping
+				advance();
+				if (token.value === ')') {
+					advance();
+					term = Actor(const_expr_beh(NIL), 'NIL');
+				} else {
+					term = mk_expr();
+					expect(')');
+					term = mk_call(term);
+				}
+			} else {
+				token.error('Term expected.');
+			}
+			return term;
+		};
+		var mk_call = function (term) {
+			if ((token.value === '(')
+			 && (token.space === '')) {  // application
+				advance();
+				if (token.value === ')') {
+					advance();
+					expr = Actor(const_expr_beh(NIL), 'NIL');
+				} else {
+					expr = mk_expr();
+					expect(')');
+				}
+				term = Actor(app_expr_beh(term, expr), 'app');
+			}
+			return term;
+		};
+		var mk_if_else = function () {
+			var eqtn, expr;
+
+			if (token.value === 'ELSE') {
+				advance();
+				expr = mk_expr();
+				return expr;
+			} else if (token.value === 'ELIF') {
+				advance();
+				eqtn = mk_eqtn();
+				expr = mk_expr();
+				next = mk_if_else();
+				return Actor(if_expr_beh(eqtn, expr, next), 'ELIF');
+			} else {
+				return Actor(const_expr_beh(UNDEF), '?');
+			}
+		};
+		var mk_case_end = function () {
+			if (token.value === 'END') {
+				advance();
+				return Actor(case_end_beh, 'END');
+			} else {
+				var ptrn, expr, next;
+				
+				ptrn = mk_ptrn();
+				expect(':');
+				expr = mk_expr();
+				next = mk_case_end();
+				return Actor(case_choice_beh(ptrn, expr, next), 'OF');
+			}
+		};
+		var mk_const_expr = function () {
+			var t = token.type;
+			var v = token.value;
+
+			if (t === 'number') {
+				advance();
+				return Actor(const_expr_beh(v), '#'+v);
+			}
+			if (v === '[') {
+				var scope = Scope();
+				var stmt;
+				
+				advance();
+				stmt = mk_block_end(scope);
+				return Actor(block_expr_beh(scope.vars, stmt), '[');
+			}
+			if (v === '#') {
+				var value = advance().value;
+				
+				advance();
+				return Actor(const_expr_beh(value), '#'+value);
+			}
+			if ((v === '\\') || (v === 'λ')) {
+				var ptrn, expr;
+				
+				advance();
+				ptrn = mk_ptrn();
+				expect('.');
+				expr = mk_expr();
+				return Actor(abs_expr_beh(ptrn, expr), 'abs');
+			}
+			if (v === 'NOW') {  // FIXME: non-standard extension
+				advance();
+				return Actor(now_expr_beh, 'NOW');
+			}
+			if (v === 'SELF') {
+				advance();
+				return Actor(self_expr_beh, 'SELF');
+			}
+			if (v === '?') {
+				advance();
+				return Actor(const_expr_beh(UNDEF), '?');
+			}
+			if (v === 'TRUE') {
+				advance();
+				return Actor(const_expr_beh(true), 'TRUE');
+			}
+			if (v === 'FALSE') {
+				advance();
+				return Actor(const_expr_beh(false), 'FALSE');
+			}
+			if (v === 'NIL') {
+				advance();
+				return Actor(const_expr_beh(NIL), 'NIL');
+			}
+			token.error('Constant expected.');
+		};
+		var mk_block_end = function (scope) {
+			if (token.value === ']') {
+				advance();
+				return Actor(empty_stmt_beh, ']');
+			} else {
+				var stmt, next;
+				
+				stmt = mk_stmt(scope);
+				next = mk_block_end(scope);
+				return Actor(stmt_pair_beh(stmt, next), 'stmt:,');
+			}
+		};
+		var mk_ident = function () {
+			var ident;
+
+			if (token.type !== 'symbol') {
+				token.error('Symbol required.');
+			}
+			ident = token.value;
+			advance();
+			return ident;
+		};
+		var is_const = function (token) {
+			var t = token.type;
+			var v = token.value;
+
+			if (t === 'number') {
+				return true;
+			}
+			if ((v === '?')
+			 || (v === '[')
+			 || (v === '#')
+			 || (v === '\\') || (v === 'λ')
+			 || (v === 'NOW')  // FIXME: non-standard extension
+			 || (v === 'SELF')
+			 || (v === 'TRUE')
+			 || (v === 'FALSE')
+			 || (v === 'NIL')) {
+				return true;
+			}
+			return false;
+		};
+	    //
+	    // Top-down parser/compiler
+	    //
+	    var parse = function (script) {
+	        var lines = script.split('\n');
+	        var lineno = 0;
+
+	        token = start;
+	        tokens = [];
+	        while (lineno < lines.length) {
+	            tokenize(lines[lineno], lineno + 1);
+	            lineno += 1;
+	        }
+	        return tokens.join('\n');
+	    };
+	    var compile = function () {
+	        var actor;
+
+	        if (token === start) {
+	            advance();
+	        }
+	        if (token !== end) {
+	            actor = mk_stmt();
+	        }
+	        return actor;
+	    };
+
+		this.generator = generator;
+		this.parse = parse;
+		this.compile = compile;
+	}
+	.field('version', version)
+	.override('toString', function () {
+		return '<Hum_Xlat v' + this.version + '>';
+	});
+
+	factory = function (cfg) {
+		var self = new constructor(cfg);
+		
+		self.constructor = constructor;
+		return self;
+	};
+	factory.class = constructor;
+	factory.created = function (instance) {
+		return ((typeof instance === 'object')
+			&&  (instance !== null)
+			&&  (instance.constructor === constructor));
+	};
+	return factory;
+})();
