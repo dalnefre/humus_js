@@ -66,7 +66,7 @@ _gaq.push(['_trackPageview']);
 <button id="exec-btn" onclick="Humus.exec_script('script');" >Execute</button>
 
 <form id="editor" action="#">
-<textarea id="script" name="script" rows="25" cols="80"></textarea>
+<textarea id="script" name="script" rows="60" cols="72"></textarea>
 </form>
 
 <pre id="log"></pre>
@@ -94,7 +94,6 @@ TRACE:
 
 <script type="text/javascript"><!--
 var Humus = (function (self) {
-	var version = '0.7.4 2011-09-28';
 	var DAL = DALNEFRE;
 	var Dictionary = DAL.Dictionary;
 	var HUM = DAL.Humus;
@@ -140,7 +139,7 @@ var Humus = (function (self) {
 		},
 		toggle_display: toggle_display,
 		run_tests: run_tests,
-		version: version
+		version: HUM.version
 	});
 	return self;
 })();

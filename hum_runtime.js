@@ -515,7 +515,7 @@ DALNEFRE.Humus.Runtime = (function () {
 				Actor(GEN.native_fn_beh(compare_fn), 'compare_fn')
 		}, env), 'repl_env');
 
-		cfg.send('v'+version+'\n', a_println);
+		cfg.send('v'+HUM.version+'\n', a_println);
 		cfg.run();
 
 		this.config = cfg;
