@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus.Xlat !== 'undefined') {
 }
 
 DALNEFRE.Humus.Xlat = (function () {
-	var version = '0.7.4 2012-03-21';
+	var version = '0.7.4 2012-03-27';
 	var DAL = DALNEFRE;
 //	var log = DAL.log;
 //	var debug = function (msg) {
@@ -140,7 +140,7 @@ DALNEFRE.Humus.Xlat = (function () {
 			} else if ((r = /^'([^\\'])'$/.exec(t))) {
 				token.value = r[1].charCodeAt(0);
 				token.type = 'char';
-			} else if ((r = /^"([^"]*)"$/.exec(t))) {
+			} else if ((r = /^"((\\.|[^\\"])*)"$/.exec(t))) {
 				token.value = string_to_tuple(r[1]);
 				token.type = 'string';
 			} else if ((r = /^[#$(),.:;=\[\\\]λ]$/.exec(t))) {
@@ -153,7 +153,7 @@ DALNEFRE.Humus.Xlat = (function () {
 		var tokenize = function (line, lineno) {  // tokenize line, adding to tokens[]
 			var s = line;
 			var p = 
-/(\s*)([#$(),.:;=\[\\\]λ]|'(\\.|[^\\'])'|"[^"]*"|\d+#\w+|[^#$(),.:;=\[\\\]λ\s]+)/g
+/(\s*)([#$(),.:;=\[\\\]λ]|'(\\.|[^\\'])'|"(\\.|[^\\"])*"|\d+#\w+|[^#$(),.:;=\[\\\]λ\s]+)/g
 			var r;
 
 			lineno = lineno || 0;
