@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus.Xlat !== 'undefined') {
 }
 
 DALNEFRE.Humus.Xlat = (function () {
-	var version = '0.7.3 2011-04-28';
+	var version = '0.7.4 2012-03-21';
 	var DAL = DALNEFRE;
 //	var log = DAL.log;
 //	var debug = function (msg) {
@@ -100,6 +100,12 @@ DALNEFRE.Humus.Xlat = (function () {
 		});
 		var token = start;
 		var tokens = [];
+		var string_to_tuple = function (s) {
+			if (s.length > 0) {
+				return Pr(s.charCodeAt(0), string_to_tuple(s.substring(1)));
+			}
+			return NIL;
+		};
 		var token_type = function (token) {
 			var t = token.text;
 			var r;
@@ -108,9 +114,15 @@ DALNEFRE.Humus.Xlat = (function () {
 			if ((r = /^(-?\d+)$/.exec(t))) {
 				token.value = parseInt(r[1], 10);
 				token.type = 'number';
-			} else if ((r = /^(\d*)#(\w+)$/.exec(t))) {
+			} else if ((r = /^(\d+)#(\w+)$/.exec(t))) {
 				token.value = parseInt(r[2], r[1]);
 				token.type = 'number';
+			} else if ((r = /^'([^'])'$/.exec(t))) {
+				token.value = r[1].charCodeAt(0);
+				token.type = 'char';
+			} else if ((r = /^"([^"]*)"$/.exec(t))) {
+				token.value = string_to_tuple(r[1]);
+				token.type = 'string';
 			} else if ((r = /^[#$(),.:;=\[\\\]λ]$/.exec(t))) {
 				token.type = 'punct';
 			} else {
@@ -120,7 +132,8 @@ DALNEFRE.Humus.Xlat = (function () {
 		};
 		var tokenize = function (line, lineno) {  // tokenize line, adding to tokens[]
 			var s = line;
-			var p = /(\s*)([#$(),.:;=\[\\\]λ]|(\d*#\w+)|[^#$(),.:;=\[\\\]λ\s]+)/g
+			var p = 
+/(\s*)([#$(),.:;=\[\\\]λ]|'[^']'|"[^"]*"|\d+#\w+|[^#$(),.:;=\[\\\]λ\s]+)/g
 			var r;
 
 			lineno = lineno || 0;
@@ -308,6 +321,14 @@ DALNEFRE.Humus.Xlat = (function () {
 				advance();
 				return Actor(const_ptrn_beh(v), 'ptrn:'+v);
 			}
+			if (t === 'char') {
+				advance();
+				return Actor(const_ptrn_beh(v), 'ptrn:\''+v+'\'');
+			}
+			if (t === 'string') {
+				advance();
+				return Actor(const_ptrn_beh(v), 'ptrn:"'+v+'"');
+			}
 			if (v === '#') {
 				var value = advance().value;
 				
@@ -464,6 +485,14 @@ DALNEFRE.Humus.Xlat = (function () {
 				advance();
 				return Actor(const_expr_beh(v), '#'+v);
 			}
+			if (t === 'char') {
+				advance();
+				return Actor(const_expr_beh(v), '\''+v+'\'');
+			}
+			if (t === 'string') {
+				advance();
+				return Actor(const_expr_beh(v), '"'+v+'"');
+			}
 			if (v === '[') {
 				var scope = Scope();
 				var stmt;
@@ -539,7 +568,9 @@ DALNEFRE.Humus.Xlat = (function () {
 			var t = token.type;
 			var v = token.value;
 
-			if (t === 'number') {
+			if ((t === 'number')
+			 || (t === 'char')
+			 || (t === 'string')) {
 				return true;
 			}
 			if ((v === '?')
