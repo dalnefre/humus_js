@@ -100,8 +100,22 @@ DALNEFRE.Humus.Xlat = (function () {
 		});
 		var token = start;
 		var tokens = [];
+		var escape_map = {
+			'b' : '\b',
+			't' : '\t',
+			'n' : '\n',
+			'r' : '\r',
+			'"' : '"',
+			'\'' : '\'',
+			'\\' : '\\'
+		};
 		var string_to_tuple = function (s) {
 			if (s.length > 0) {
+				if (s.charAt(0) === '\\') {
+					var e = escape_map[s.charAt(1)] || s.charAt(1);
+					
+					return Pr(e.charCodeAt(0), string_to_tuple(s.substring(2)));
+				}
 				return Pr(s.charCodeAt(0), string_to_tuple(s.substring(1)));
 			}
 			return NIL;
@@ -109,6 +123,7 @@ DALNEFRE.Humus.Xlat = (function () {
 		var token_type = function (token) {
 			var t = token.text;
 			var r;
+			var s;
 
 			token.value = token.text;
 			if ((r = /^(-?\d+)$/.exec(t))) {
@@ -117,7 +132,12 @@ DALNEFRE.Humus.Xlat = (function () {
 			} else if ((r = /^(\d+)#(\w+)$/.exec(t))) {
 				token.value = parseInt(r[2], r[1]);
 				token.type = 'number';
-			} else if ((r = /^'([^'])'$/.exec(t))) {
+			} else if ((r = /^'(\\.)'$/.exec(t))) {
+				s = r[1];
+				s = escape_map[s.charAt(1)] || s.charAt(1);
+				token.value = s.charCodeAt(0);
+				token.type = 'char';
+			} else if ((r = /^'([^\\'])'$/.exec(t))) {
 				token.value = r[1].charCodeAt(0);
 				token.type = 'char';
 			} else if ((r = /^"([^"]*)"$/.exec(t))) {
@@ -133,7 +153,7 @@ DALNEFRE.Humus.Xlat = (function () {
 		var tokenize = function (line, lineno) {  // tokenize line, adding to tokens[]
 			var s = line;
 			var p = 
-/(\s*)([#$(),.:;=\[\\\]λ]|'[^']'|"[^"]*"|\d+#\w+|[^#$(),.:;=\[\\\]λ\s]+)/g
+/(\s*)([#$(),.:;=\[\\\]λ]|'(\\.|[^\\'])'|"[^"]*"|\d+#\w+|[^#$(),.:;=\[\\\]λ\s]+)/g
 			var r;
 
 			lineno = lineno || 0;
