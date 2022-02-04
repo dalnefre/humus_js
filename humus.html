@@ -72,11 +72,11 @@ _gaq.push(['_trackPageview']);
 <pre id="log"></pre>
 
 <div style="margin:.5em;">
-<button id="test-btn" onclick="Humus.run_tests();">Run Tests</button>
+<button id="test-btn" onclick="Humus.run_tests();">Self Test</button>
 <button id="debug-btn" onclick="Humus.toggle_display('debug');">Debug</button>
 <button id="trace-btn" onclick="Humus.toggle_display('trace');">Trace</button>
 <button id="meta-btn" onclick="Humus.select_meta();">Meta</button>
-<button id="jsan-btn" onclick="Humus.select_jsan();">Jsan</button>
+<button id="json-btn" onclick="Humus.select_json();">Json</button>
 </div>
 
 <!--
@@ -122,7 +122,7 @@ var Humus = (function (self) {
 		select_meta: function () {
 			this.runtime = HUM.Runtime(HUM.Gen_Meta);
 		},
-		select_jsan: function () {
+		select_json: function () {
 			this.runtime = HUM.Runtime(HUM.Gen_Json);
 		},
 		exec_script: function (id) {

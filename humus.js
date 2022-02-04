@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus !== 'undefined') {
 }
 
 DALNEFRE.Humus = (function (self) {
-	var version = '0.7.6 2012-03-12';
+	var version = '0.7.7 2022-02-04';
 	var DAL = DALNEFRE;
 	var equal = DAL.equal;
 //	var log = DAL.log;

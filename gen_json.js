@@ -1,5 +1,6 @@
 ﻿/*
- * gen_json.js -- Humus JSON-like code generator (JavaScript Actor Notation)
+ * gen_json.js -- Humus JSON code generator (CRLF grammar)
+ * https://github.com/organix/crlf/blob/master/Humus.md
  *
  * author: Dale Schumacher <dale.schumacher@gmail.com>
  * requires: core.js, humus.js
@@ -16,7 +17,7 @@ if (typeof DALNEFRE.Humus.Gen_Json !== 'undefined') {
 }
 
 DALNEFRE.Humus.Gen_Json = (function () {
-	var version = '0.7.3 2011-04-28';
+	var version = '0.7.7 2022-02-04';
 	var DAL = DALNEFRE;
 	var log = DAL.log;
 //	var debug = function (msg) {
@@ -27,190 +28,104 @@ DALNEFRE.Humus.Gen_Json = (function () {
 	var HUM = DAL.Humus;
 	var UNDEF = HUM.UNDEF;
 	var NIL = HUM.NIL;
-	var Obj = HUM.Obj;
+//	var Obj = HUM.Obj;
 	var Pr = HUM.Pr;
 	
 	var sink_beh = DAL.Actor.sink_beh;
 	var const_expr_beh = function (value) {
-		return Obj({
-			beh: 'const_expr',
-			value: value
-		});
+		value = JSON.parse(JSON.stringify(value));  // safe round-trip value
+		return { "kind":"const_expr", "value":value }
 	};
 	var ident_expr_beh = function (ident) {
-		return Obj({
-			beh: 'ident_expr',
-			ident: ident
-		});
+		return { "kind":"ident_expr", "ident":String(ident) }
 	};
 	var abs_expr_beh = function (ptrn, expr) {
-		return Obj({
-			beh: 'abs_expr',
-			ptrn: ptrn,
-			body: expr
-		});
+		return { "kind":"abs_expr", "ptrn":ptrn, "body":expr }
 	};
 //	var closure_beh = function (ptrn, body, env) {...};
 	var app_expr_beh = function (abs_expr, arg_expr) {
-		return Obj({
-			beh: 'app_expr',
-			abs: abs_expr,
-			arg: arg_expr
-		});
+		return { "kind":"app_expr", "abs":abs_expr, "arg":arg_expr }
 	};
 	var pair_expr_beh = function (h_expr, t_expr) {
-		return Obj({
-			beh: 'pair_expr',
-			head: h_expr,
-			tail: t_expr
-		});
+		return { "kind":"pair_expr", "head":h_expr, "tail":t_expr }
 	};
 	var case_expr_beh = function (expr, next) {
-		return Obj({
-			beh: 'case_expr',
-			expr: expr,
-			next: next
-		});
+		return { "kind":"case_expr", "expr":expr, "next":next }
 	};
 	var case_choice_beh = function (ptrn, expr, next) {
-		return Obj({
-			beh: 'case_choice',
-			ptrn: ptrn,
-			expr: expr,
-			next: next
-		});
+		return { "kind":"case_choice", "ptrn":ptrn, "expr":expr, "next":next }
 	};
-	var case_end_beh = Obj({
-		beh: 'case_end'
-	});
+	var case_end_beh = { "kind":"case_end" };
 	var if_expr_beh = function (eqtn, expr, next) {
-		return Obj({
-			beh: 'if_expr',
-			eqtn: eqtn,
-			expr: expr,
-			next: next
-		});
+		return { "kind":"if_expr", "eqtn":eqtn, "expr":expr, "next":next }
 	};
 	var let_expr_beh = function (eqtn, expr) {
-		return Obj({
-			beh: 'let_expr',
-			eqtn: eqtn,
-			expr: expr
-		});
+		return { "kind":"let_expr", "eqtn":eqtn, "expr":expr }
 	};
 	var block_expr_beh = function (vars, stmt) {
-		return Obj({
-			beh: 'block_expr',
-			vars: vars,
-			stmt: stmt
-		});
+		var vs = [];  // convert Pair-list to native Array
+		while (Pr.created(vars)) {
+			vs.push(String(vars.hd));
+			vars = vars.tl;
+		}
+		return { "kind":"block_expr", "vars":vs, "stmt":stmt }
 	};
-	var now_expr_beh = Obj({
-		beh: 'now_expr'
-	});
-	var self_expr_beh = Obj({
-		beh: 'self_expr'
-	});
-	var new_expr_beh = function (expr) {
-		return Obj({
-			beh: 'new_expr',
-			expr: expr
-		});
+	var now_expr_beh = { "kind":"now_expr" };
+	var self_expr_beh = { "kind":"self_expr" };
+	var new_expr_beh = function (b_expr) {
+		return { "kind":"new_expr", "expr":b_expr }
 	};
 	var eqtn_beh = function (left_ptrn, right_ptrn) {
-		return Obj({
-			beh: 'eqtn',
-			left: left_ptrn,
-			right: right_ptrn
-		});
+		return { "kind":"eqtn", "left":left_ptrn, "right":right_ptrn }
 	};
 	var const_ptrn_beh = function (value) {
-		return Obj({
-			beh: 'const_ptrn',
-			value: value
-		});
-	};
-	var value_ptrn_beh = function (expr) {
-		return Obj({
-			beh: 'value_ptrn',
-			expr: expr
-		});
+		value = JSON.parse(JSON.stringify(value));  // safe round-trip value
+		return { "kind":"const_ptrn", "value":value }
 	};
 	var ident_ptrn_beh = function (ident) {
-		return Obj({
-			beh: 'ident_ptrn',
-			ident: ident
-		});
+		return { "kind":"ident_ptrn", "ident":String(ident) }
 	};
-	var any_ptrn_beh = Obj({
-		beh: 'any_ptrn'
-	});
+	var any_ptrn_beh = { "kind":"any_ptrn" };
 	var pair_ptrn_beh = function (h_ptrn, t_ptrn) {
-		return Obj({
-			beh: 'pair_ptrn',
-			head: h_ptrn,
-			tail: t_ptrn
-		});
+		return { "kind":"pair_ptrn", "head":h_ptrn, "tail":t_ptrn };
 	};
-	var self_ptrn_beh = Obj({
-		beh: 'self_ptrn'
-	});
+	var value_ptrn_beh = function (expr) {
+		return { "kind":"value_ptrn", "expr":expr };
+	};
+	var self_ptrn_beh = { "kind":"self_ptrn" };
 //	var block_beh = function (vars, stmt, env) {...};
-	var empty_stmt_beh = Obj({
-		beh: 'empty_stmt'
-	});
+	var empty_stmt_beh = { "kind":"empty_stmt" };
 	var stmt_pair_beh = function (h_stmt, t_stmt) {
-		return Obj({
-			beh: 'stmt_pair',
-			head: h_stmt,
-			tail: t_stmt
-		});
+		return { "kind":"stmt_pair", "head":h_stmt, "tail":t_stmt }
 	};
 	var let_stmt_beh = function (eqtn) {
-		return Obj({
-			beh: 'let_stmt',
-			eqtn: eqtn
-		});
+		//...{ "kind":"eqtn", "left":<pattern>, "right":{ "kind":"value_ptrn", "expr":<expression> }}
+		if ((typeof eqtn === 'object')
+		 && (eqtn.kind === 'eqtn')
+		 && (typeof eqtn.left === 'object')
+		 && (typeof eqtn.right === 'object')
+		 && (eqtn.right.kind === 'value_ptrn')) {
+			return { "kind":"def_stmt", "ptrn":eqtn.left, "expr":eqtn.right.expr }
+		}
+		return { "kind":"let_stmt", "eqtn":eqtn }
 	};
 	var send_stmt_beh = function (m_expr, a_expr, t_expr) {
 		if (t_expr) {
-			return Obj({
-				beh: 'after_send_stmt',
-				dt: t_expr,
-				msg: m_expr,
-				to: a_expr
-			});
+			return { "kind":"after_send_stmt", "dt":t_expr, "msg":m_expr, "to":a_expr }
 		}
-		return Obj({
-			beh: 'send_stmt',
-			msg: m_expr,
-			to: a_expr
-		});
+		return { "kind":"send_stmt", "msg":m_expr, "to":a_expr }
 	};
 	var create_stmt_beh = function (ident, b_expr) {
-		return Obj({
-			beh: 'create_stmt',
-			ident: ident,
-			expr: b_expr
-		});
+		return { "kind":"create_stmt", "ident":String(ident), "expr":b_expr }
 	};
 	var become_stmt_beh = function (b_expr) {
-		return Obj({
-			beh: 'become_stmt',
-			expr: b_expr
-		});
+		return { "kind":"become_stmt", "expr":b_expr }
 	};
 	var throw_stmt_beh = function (e_expr) {
-		return Obj({
-			beh: 'throw_stmt',
-			expr: e_expr
-		});
+		return { "kind":"throw_stmt", "expr":e_expr }
 	};
 	var expr_stmt_beh = function (expr) {
-		return Obj({
-			beh: 'expr_stmt',
-			expr: expr
-		});
+		return { "kind":"expr_stmt", "expr":expr }
 	};
 
 	var factory;
@@ -218,10 +133,19 @@ DALNEFRE.Humus.Gen_Json = (function () {
 		this.config = cfg;
 		this.Actor = (function () {  // private class -- needs access to 'cfg'
 			var factory;
-			var constructor = function Actor(beh) {
-				this.isActor = true;
-				this.attrs = beh;
+			var constructor = function Actor(beh, id) {
+				if (typeof beh === 'object') {
+					for (const key of Object.keys(beh)) {
+						const value = beh[key]
+						if (typeof value !== 'function') {
+							this[key] = value;
+						}
+					}
+				} else {
+					this.beh = beh;
+				}
 			}
+			.field('isActor', true)
 			.method('behavior', function (msg) {
 				log(msg + '\n -> ' + this);
 				if (Pr.created(msg)
@@ -230,43 +154,12 @@ DALNEFRE.Humus.Gen_Json = (function () {
 					var sponsor = msg.tl.hd;
 					var message = msg.tl.tl;
 				
-					HUM.println(this.pp());
+					HUM.println(JSON.stringify(this, null, '  '));
 					cfg.send('ok', cust);
 				}
 			})
-			.method('pp', function (depth) {
-				var d = this.attrs;
-				var s = '';
-				var indent = function (depth) {
-					var i;
-					var t = '';
-
-					for (i = 0; i < depth; ++i) {
-						t += '  ';  // indent 2 spaces per level
-					}
-					return t;
-				}
-
-				depth = depth || 0;
-				s += '@{\n';
-				depth += 1;
-				s += d.forEachData(function (key, acc) {
-					var v = d[key];
-					
-					if ((typeof v === 'object') && (typeof v.pp === 'function')) {
-						v = v.pp(depth);
-					}
-					acc.push(indent(depth) + key + ': ' + v);
-					return acc;
-				}, []).join(',\n');
-				s += '\n';
-				depth -= 1;
-				s += indent(depth);
-				s += '}';
-				return s;
-			})
 			.override('toString', function () {
-				return '@' + this.attrs;
+				return JSON.stringify(this);
 			});
 		
 			factory = function (beh) {
