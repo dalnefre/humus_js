@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus.Gen_Meta !== 'undefined') {
 }
 
 DALNEFRE.Humus.Gen_Meta = (function () {
-	var version = '0.7.3 2011-04-29';
+	var version = '0.7.7 2022-02-03';
 	var DAL = DALNEFRE;
 	var equal = DAL.equal;
 	var log = DAL.log;
@@ -582,7 +582,12 @@ DALNEFRE.Humus.Gen_Meta = (function () {
 								var abs = abs_arg.hd;
 								var arg = abs_arg.tl;
 								
-								this.send(Pr(cust, Pr('apply', arg)), abs);
+								if ((typeof abs !== 'object') || !abs.isActor) {
+									/* avoid "send requires an actor" error */
+									this.send(UNDEF, cust);
+								} else {
+									this.send(Pr(cust, Pr('apply', arg)), abs);
+								}
 							}
 						}
 					);
@@ -820,25 +825,6 @@ DALNEFRE.Humus.Gen_Meta = (function () {
 
 				this.send(Pr(cust, 'self'), env);
 			}
-		}
-	};
-	/*
-	LET new_actor_beh = \(cust, beh_fn, env).[
-		BECOME serializer_beh(NEW self_beh(SELF, beh_fn, env))
-		SEND #ok TO cust
-	]
-	*/
-	var new_actor_beh = function (msg) {
-		if (Pr.created(msg)
-		 && Pr.created(msg.tl)) {
-			var cust = msg.hd;
-			var beh_fn = msg.tl.hd;
-			var env = msg.tl.tl;
-			
-			this.become(serializer_beh(
-				this.create(self_beh(this.self, beh_fn, env), 'actor')
-			));
-			this.send('ok', cust);
 		}
 	};
 	/*
@@ -1726,11 +1712,16 @@ DALNEFRE.Humus.Gen_Meta = (function () {
 			var cust = msg.hd;
 			var beh_fn = msg.tl.hd;
 			var env = msg.tl.tl;
-			
-			this.become(serializer_beh(
-				this.create(self_beh(this.self, beh_fn, env), 'actor')
-			));
-			this.send('ok', cust);
+
+			if (beh_fn === 'apply') {
+				/* undefined application */
+				this.send(UNDEF, cust);
+			} else {
+				this.become(serializer_beh(
+					this.create(self_beh(this.self, beh_fn, env), 'actor')
+				));
+				this.send('ok', cust);
+			}
 		}
 	};
 	/*
@@ -1766,38 +1757,43 @@ DALNEFRE.Humus.Gen_Meta = (function () {
 				var sponsor = msg.tl.hd;
 				var message = msg.tl.tl;
 			
-				this.send(Pr(this.self, Pr('apply', message)), beh_fn);
-				this.become(
-					function (block) {
-						var env_ = this.create(self_env_beh(self, env), 'self_env');
-						
-						if ((typeof block === 'object') && block.isActor) {
-							this.send(
-								Pr(this.self, Pr('exec', Pr(env_, sponsor))), 
-								block
-							);
-						} else {
-							this.send(
-								Pr(this.self, Pr('throw', 'behavior-block-required')), 
-								sponsor
+				if (sponsor === 'apply') {
+					/* undefined application */
+					this.send(UNDEF, cust);
+				} else {
+					this.send(Pr(this.self, Pr('apply', message)), beh_fn);
+					this.become(
+						function (block) {
+							var env_ = this.create(self_env_beh(self, env), 'self_env');
+
+							if ((typeof block === 'object') && block.isActor) {
+								this.send(
+									Pr(this.self, Pr('exec', Pr(env_, sponsor))),
+									block
+								);
+							} else {
+								this.send(
+									Pr(this.self, Pr('throw', 'behavior-block-required')),
+									sponsor
+								);
+							}
+							this.become(
+								function (result) {
+									if (result === 'fail') {
+										this.become(self_beh(self, beh_fn, env));
+										this.send('fail', cust);
+									} else if (result === 'ok') {
+										this.become(self_beh(self, beh_fn, env));
+										this.send('ok', cust);
+									} else {
+										this.become(self_beh(self, result, env));
+										this.send('ok', cust);
+									}
+								}
 							);
 						}
-						this.become(
-							function (result) {
-								if (result === 'fail') {
-									this.become(self_beh(self, beh_fn, env));
-									this.send('fail', cust);
-								} else if (result === 'ok') {
-									this.become(self_beh(self, beh_fn, env));
-									this.send('ok', cust);
-								} else {
-									this.become(self_beh(self, result, env));
-									this.send('ok', cust);
-								}
-							}
-						);
-					}
-				);
+					);
+				}
 			}
 		};
 	};
@@ -2096,8 +2092,13 @@ DALNEFRE.Humus.Gen_Meta = (function () {
 				var sponsor = msg.tl.hd;
 				var message = msg.tl.tl;
 			
-				this.send(message, meta);
-				this.send('ok', cust);
+				if (sponsor === 'apply') {
+					/* undefined application */
+					this.send(UNDEF, cust);
+				} else {
+					this.send(message, meta);
+					this.send('ok', cust);
+				}
 			}
 		};
 	};
