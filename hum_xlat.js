@@ -202,8 +202,37 @@ DALNEFRE.Humus.Xlat = (function () {
 		//
 		// Recognizers
 		//
+		var def_stmt_beh = function (ptrn, expr) {
+			/* FIXME: this is a polyfill ... real implementation should be in each generator */
+			var r_ptrn = Actor(value_ptrn_beh(expr), 'ptrn:$');
+			var eqtn = Actor(eqtn_beh(ptrn, r_ptrn), 'eqtn');
+			return let_stmt_beh(eqtn);
+		}
 		var mk_stmt = function (scope) {
-			if (token.value === 'LET') {
+			if (token.value === 'DEF') {
+				var ptrn, expr;
+				
+				advance();
+				if ((token.type === 'symbol')
+				 &&	(lookahead().value === '(')) {  // function definition -> rewrite
+					var ident = token.value;
+
+					advance();
+					ptrn = mk_ptrn();
+					expect('AS');
+					expr = mk_expr();
+					expr = Actor(abs_expr_beh(ptrn, expr), 'abs');
+					ptrn = Actor(ident_ptrn_beh(ident), 'ptrn:'+ident);
+					if (scope) {
+						scope.declare(ident);
+					}
+				} else {
+					ptrn = mk_ptrn(scope);
+					expect('AS');
+					expr = mk_expr();
+				}
+				return Actor(def_stmt_beh(ptrn, expr), 'DEF');
+			} else if (token.value === 'LET') {
 				var eqtn;
 				
 				advance();
