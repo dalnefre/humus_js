@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus.Xlat !== 'undefined') {
 }
 
 DALNEFRE.Humus.Xlat = (function () {
-	var version = '0.7.4 2012-03-27';
+	var version = '0.7.7 2022-02-05';
 	var DAL = DALNEFRE;
 //	var log = DAL.log;
 //	var debug = function (msg) {
@@ -63,6 +63,7 @@ DALNEFRE.Humus.Xlat = (function () {
 		var self_ptrn_beh = GEN.self_ptrn_beh;
 		var empty_stmt_beh = GEN.empty_stmt_beh;
 		var stmt_pair_beh = GEN.stmt_pair_beh;
+		var def_stmt_beh = GEN.def_stmt_beh;
 		var let_stmt_beh = GEN.let_stmt_beh;
 		var send_stmt_beh = GEN.send_stmt_beh;
 		var create_stmt_beh = GEN.create_stmt_beh;
@@ -202,12 +203,6 @@ DALNEFRE.Humus.Xlat = (function () {
 		//
 		// Recognizers
 		//
-		var def_stmt_beh = function (ptrn, expr) {
-			/* FIXME: this is a polyfill ... real implementation should be in each generator */
-			var r_ptrn = Actor(value_ptrn_beh(expr), 'ptrn:$');
-			var eqtn = Actor(eqtn_beh(ptrn, r_ptrn), 'eqtn');
-			return let_stmt_beh(eqtn);
-		}
 		var mk_stmt = function (scope) {
 			if (token.value === 'DEF') {
 				var ptrn, expr;

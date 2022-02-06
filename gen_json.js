@@ -17,7 +17,7 @@ if (typeof DALNEFRE.Humus.Gen_Json !== 'undefined') {
 }
 
 DALNEFRE.Humus.Gen_Json = (function () {
-	var version = '0.7.7 2022-02-04';
+	var version = '0.7.7 2022-02-05';
 	var DAL = DALNEFRE;
 	var log = DAL.log;
 //	var debug = function (msg) {
@@ -98,6 +98,9 @@ DALNEFRE.Humus.Gen_Json = (function () {
 	var stmt_pair_beh = function (h_stmt, t_stmt) {
 		return { "kind":"stmt_pair", "head":h_stmt, "tail":t_stmt }
 	};
+	var def_stmt_beh = function (ptrn, expr) {
+		return { "kind":"def_stmt", "ptrn":ptrn, "expr":expr }
+	};
 	var let_stmt_beh = function (eqtn) {
 		//...{ "kind":"eqtn", "left":<pattern>, "right":{ "kind":"value_ptrn", "expr":<expression> }}
 		if ((typeof eqtn === 'object')
@@ -105,6 +108,7 @@ DALNEFRE.Humus.Gen_Json = (function () {
 		 && (typeof eqtn.left === 'object')
 		 && (typeof eqtn.right === 'object')
 		 && (eqtn.right.kind === 'value_ptrn')) {
+			// rewrite "LET <ptrn> = $<expr>" as "DEF <ptrn> AS <expr>"
 			return { "kind":"def_stmt", "ptrn":eqtn.left, "expr":eqtn.right.expr }
 		}
 		return { "kind":"let_stmt", "eqtn":eqtn }
@@ -215,6 +219,7 @@ DALNEFRE.Humus.Gen_Json = (function () {
 //	.method('block_beh', block_beh)
 	.field('empty_stmt_beh', empty_stmt_beh)
 	.method('stmt_pair_beh', stmt_pair_beh)
+	.method('def_stmt_beh', def_stmt_beh)
 	.method('let_stmt_beh', let_stmt_beh)
 	.method('send_stmt_beh', send_stmt_beh)
 	.method('create_stmt_beh', create_stmt_beh)

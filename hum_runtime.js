@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus.Runtime !== 'undefined') {
 }
 
 DALNEFRE.Humus.Runtime = (function () {
-	var version = '0.7.5 2011-11-17';
+	var version = '0.7.7 2022-02-05';
 	var DAL = DALNEFRE;
 	var warn = DAL.debug;
 	var equal = DAL.equal;

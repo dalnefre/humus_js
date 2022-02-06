@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus.Gen_Meta !== 'undefined') {
 }
 
 DALNEFRE.Humus.Gen_Meta = (function () {
-	var version = '0.7.7 2022-02-03';
+	var version = '0.7.7 2022-02-05';
 	var DAL = DALNEFRE;
 	var equal = DAL.equal;
 	var log = DAL.log;
@@ -1437,6 +1437,57 @@ DALNEFRE.Humus.Gen_Meta = (function () {
 		};
 	};
 	/*
+	LET def_stmt_beh(ptrn, expr) = \(cust, #exec, env, sponsor).[
+		SEND (k_eval, #eval, env) TO expr
+		CREATE k_eval WITH \value.[
+			SEND (SELF, #match, value, env) TO ptrn
+			BECOME \env'.[
+				CASE env' OF
+				? : [ SEND (cust, #throw, #mismatch, ptrn, value) TO sponsor ]
+				_ : [ SEND #ok TO cust ]
+				END
+			]
+		]
+	]
+	*/
+	var def_stmt_beh = function (ptrn, expr) {
+		return function (msg) {
+			if (Pr.created(msg)) {
+				var cust = msg.hd;
+				var req = msg.tl;
+
+				if (Pr.created(req)
+				 && (req.hd === 'exec')
+				 && Pr.created(req.tl)) {
+					var env = req.tl.hd;
+					var sponsor = req.tl.tl;
+					var k_eval = this.create(
+						function (value) {
+							this.send(
+								Pr(this.self, Pr('match', Pr(value, env))),
+								ptrn
+							);
+							this.become(
+								function (env_) {
+									if (env_ === UNDEF) {
+										this.send(
+											Pr(cust, Pr('throw', Pr('mismatch', Pr(ptrn, value)))),
+											sponsor
+										);
+									} else {
+										this.send('ok', cust);
+									}
+								}
+							);
+						}
+					);
+
+					this.send(Pr(k_eval, Pr('eval', env)), expr);
+				}
+			}
+		};
+	};
+	/*
 	LET let_stmt_beh(eqtn) = \(cust, #exec, env, sponsor).[
 		SEND (k_env, #unify, env) TO eqtn
 		CREATE k_env WITH \env'.[
@@ -2192,6 +2243,7 @@ DALNEFRE.Humus.Gen_Meta = (function () {
 	.method('block_beh', block_beh)
 	.method('empty_stmt_beh', empty_stmt_beh)
 	.method('stmt_pair_beh', stmt_pair_beh)
+	.method('def_stmt_beh', def_stmt_beh)
 	.method('let_stmt_beh', let_stmt_beh)
 	.method('send_stmt_beh', send_stmt_beh)
 	.method('create_stmt_beh', create_stmt_beh)
