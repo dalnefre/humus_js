@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus.Gen_Meta !== 'undefined') {
 }
 
 DALNEFRE.Humus.Gen_Meta = (function () {
-	var version = '0.7.7 2022-02-05';
+	var version = '0.8.0 2024-01-29';
 	var DAL = DALNEFRE;
 	var equal = DAL.equal;
 	var log = DAL.log;

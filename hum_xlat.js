@@ -16,7 +16,7 @@ if (typeof DALNEFRE.Humus.Xlat !== 'undefined') {
 }
 
 DALNEFRE.Humus.Xlat = (function () {
-	var version = '0.7.7 2022-02-05';
+	var version = '0.8.0 2024-01-29';
 	var DAL = DALNEFRE;
 //	var log = DAL.log;
 //	var debug = function (msg) {
