@@ -1,21 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+﻿<!DOCTYPE html>
+<html>
 <head>
 <title>Humus Simulator/Debugger</title>
-<script language="javascript" type="text/javascript" src="core.js"></script>
-<script language="javascript" type="text/javascript" src="test.js"></script>
-<script language="javascript" type="text/javascript" src="core_test.js"></script>
-<script language="javascript" type="text/javascript" src="actor.js"></script>
-<script language="javascript" type="text/javascript" src="actor_test.js"></script>
-<script language="javascript" type="text/javascript" src="humus.js"></script>
-<script language="javascript" type="text/javascript" src="gen_meta.js"></script>
-<script language="javascript" type="text/javascript" src="gen_json.js"></script>
-<script language="javascript" type="text/javascript" src="hum_xlat.js"></script>
-<script language="javascript" type="text/javascript" src="hum_runtime.js"></script>
-<script language="javascript" type="text/javascript" src="humus_test.js"></script>
-<style type="text/css" media="all"><!--
+<style>
 #script {
 	color: #003;
 	background: #FFC;
@@ -33,13 +20,13 @@
 	padding: 0 0.5em;
 	display: none;
 }
---></style>
+</style>
 </head>
 <body>
 
 <div style="float:right">
 <div style="margin:.5em;">
-<button id="halt-btn" onclick="Humus.halt_runtime();">Halt</button>
+<button id="halt-btn" onclick="halt_runtime();">Halt</button>
 </div>
 </div>
 
@@ -47,7 +34,7 @@
 
 <pre id="output"></pre>
 
-<button id="exec-btn" onclick="Humus.exec_script('script');" >Execute</button>
+<button id="exec-btn" onclick="exec_script('script');">Execute</button>
 
 <form id="editor" action="#">
 <textarea id="script" name="script" rows="60" cols="72"></textarea>
@@ -56,11 +43,10 @@
 <pre id="log"></pre>
 
 <div style="margin:.5em;">
-<button id="test-btn" onclick="Humus.run_tests();">Self Test</button>
-<button id="debug-btn" onclick="Humus.toggle_display('debug');">Debug</button>
-<button id="trace-btn" onclick="Humus.toggle_display('trace');">Trace</button>
-<button id="meta-btn" onclick="Humus.select_meta();">Meta</button>
-<button id="json-btn" onclick="Humus.select_json();">Json</button>
+<button id="debug-btn" onclick="toggle_display('debug');">Debug</button>
+<button id="trace-btn" onclick="toggle_display('trace');">Trace</button>
+<button id="meta-btn" onclick="select_meta();">Meta</button>
+<button id="json-btn" onclick="select_json();">Json</button>
 </div>
 
 <pre id="debug">
@@ -72,56 +58,44 @@ TRACE:
 
 </body>
 
-<script type="text/javascript"><!--
-var Humus = (function (self) {
-	var DAL = DALNEFRE;
-	var Dictionary = DAL.Dictionary;
-	var HUM = DAL.Humus;
+<script type="module">
+import core from "./core.js";
+import Humus from "./humus.js";
+import gen_json from "./gen_json.js";
+import gen_meta from "./gen_meta.js";
+import hum_runtime from "./hum_runtime.js";
 
-	var run_tests = function () {
-		DAL.run_tests();
-//		DAL.Actor.run_tests();
-		DAL.Humus.run_tests();
-	};
-	var toggle_display = function (id) {
-		var el, s;
-		
-		el = DAL.id(id || 'debug');
-		if (el) {
-			s = el.style;
-			if (s.display === 'block') {
-				s.display = 'none';
-			} else {
-				s.display = 'block';
-			}
+window.runtime = hum_runtime(gen_meta);
+window.select_meta = function () {
+	window.runtime = hum_runtime(gen_meta);
+};
+window.select_json = function () {
+	window.runtime = hum_runtime(gen_json);
+};
+window.exec_script = function (id) {
+	window.runtime.execute(id);
+};
+window.halt_runtime = function () {
+	var el;
+
+	el = core.id('halt-btn');
+	if (el) { el.value = 'Halting'; }
+	window.runtime.config.halt();
+	if (el) { el.value = 'Halted'; }
+	core.println(core.id('output'), '--RUNTIME-HALTED--');
+};
+window.toggle_display = function (id) {
+	var el, s;
+
+	el = core.id(id || 'debug');
+	if (el) {
+		s = el.style;
+		if (s.display === 'block') {
+			s.display = 'none';
+		} else {
+			s.display = 'block';
 		}
-	};
-
-	self = Dictionary({
-		runtime: HUM.Runtime(HUM.Gen_Meta),
-		select_meta: function () {
-			this.runtime = HUM.Runtime(HUM.Gen_Meta);
-		},
-		select_json: function () {
-			this.runtime = HUM.Runtime(HUM.Gen_Json);
-		},
-		exec_script: function (id) {
-			this.runtime.execute(id);
-		},
-		halt_runtime: function () {
-			var el;
-			
-			el = DAL.id('halt-btn');
-			if (el) { el.value = 'Halting'; }
-			this.runtime.config.halt();
-			if (el) { el.value = 'Halted'; }
-			DAL.println(DAL.id('output'), '--RUNTIME-HALTED--');
-		},
-		toggle_display: toggle_display,
-		run_tests: run_tests,
-		version: HUM.version
-	});
-	return self;
-})();
-//--></script>
+	}
+};
+</script>
 </html>

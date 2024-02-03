@@ -2,29 +2,18 @@
  * actor_test.js -- actor.js unit tests
  *
  * author: Dale Schumacher <dale.schumacher@gmail.com>
- * requires: core.js, actor.js, test.js
  */
 
-if (typeof DALNEFRE === 'undefined') {
-	throw Error('Namespace "DALNEFRE" required!');
-}
-if (typeof DALNEFRE.Actor === 'undefined') {
-	throw Error('Namespace "DALNEFRE.Actor" required!');
-}
-if (typeof DALNEFRE.Test === 'undefined') {
-	throw Error('Namespace "DALNEFRE.Test" required!');
-}
-if (typeof DALNEFRE.Actor.testSuite !== 'undefined') {
-	throw Error('Module "DALNEFRE.Actor.testSuite" already defined!');
-}
+ import core from "./core.js";
+ import Actor from "./actor.js";
+ import Test from "./test.js";
 
-DALNEFRE.Actor.testSuite = function (callback) {
-	var DAL = DALNEFRE;  // shorter alias
-	var log = DAL.trace;  // log to trace channel
-	var trace = DAL.trace;
-	var Dictionary = DAL.Dictionary;
-	var Config = DAL.Actor.Config;
-	var suite = DAL.Test.Suite();
+function testSuite (callback) {
+	var log = core.trace;  // log to trace channel
+	var trace = core.trace;
+	var Dictionary = core.Dictionary;
+	var Config = Actor.Config;
+	var suite = Test.Suite();
 	var asyncTest = function (name, test_fn) {
 		suite.asyncTest(name, function () {
 			log('... '+name+' ...');
@@ -101,7 +90,7 @@ DALNEFRE.Actor.testSuite = function (callback) {
 		assertEqual(false, cfg.dispatch(), 'end config');
 	});
 	test('observer pattern', function () {
-		var subject_beh = DAL.Actor.subject_beh;
+		var subject_beh = Actor.subject_beh;
 		var cfg = Config();
 		var a, b, c, s;
 		var observer_beh = function (label) {
@@ -124,7 +113,7 @@ DALNEFRE.Actor.testSuite = function (callback) {
 		assertEqual(0, cfg.pending(), 'pending after');
 	});
 	asyncTest('delay timer', function () {
-		var sink_beh = DAL.Actor.sink_beh;
+		var sink_beh = Actor.sink_beh;
 		var cfg = Config();
 		var delay_beh = function (delay, target) {
 			return function (msg) {
@@ -167,7 +156,7 @@ DALNEFRE.Actor.testSuite = function (callback) {
 		asyncWait();
 	});
 	asyncTest('run/halt', function () {
-		var sink_beh = DAL.Actor.sink_beh;
+		var sink_beh = Actor.sink_beh;
 		var cfg = Config();
 		var countdown_beh = function (count) {
 			return function (msg) {
@@ -192,12 +181,13 @@ DALNEFRE.Actor.testSuite = function (callback) {
 	return suite.getResult(callback);
 };
 
-DALNEFRE.Actor.run_tests = function () {
-	var DAL = DALNEFRE;  // shorter alias
-	var log = DAL.log;  // log to info channel
+function run_tests() {
+	var log = core.log;  // log to info channel
 
-	log('DALNEFRE(Actor) v' + DAL.Actor.version);
-	DAL.Actor.testSuite(function (result) {
+	log('core(Actor) v' + Actor.version);
+	testSuite(function (result) {
 		log(result.formatted('Actor suite: '));
 	});
 };
+
+export default Object.freeze({testSuite, run_tests});
