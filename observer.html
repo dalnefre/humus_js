@@ -1,12 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+﻿<!DOCTYPE html>
+<html>
 <head>
 <title>Observer Pattern</title>
-<script language="javascript" src="core.js" type="text/javascript"></script>
-<script type="text/javascript"><!--
-var DAL = DALNEFRE;  // short alias
+<script type="module">
+import core from "./core.js";
 
 var Subject = function () {
 	this.observers = [];
@@ -42,10 +39,10 @@ var subjects = {
 	subject1: new Subject()
 };
 
-var toggle_display = function (id) {
+window.toggle_display = function (id) {
 	var el, s;
 	
-	el = DAL.id(id || 'debug');
+	el = core.id(id || 'debug');
 	if (el) {
 		s = el.style;
 		if (s.display === 'block') {
@@ -56,10 +53,10 @@ var toggle_display = function (id) {
 	}
 };
 
-var broadcast = function (el) {
+window.broadcast = function (el) {
 	var subject = subjects[el];
 	
-	el = DAL.id(el);
+	el = core.id(el);
 	if (subject && el) {
 		subject.notify(el.textContent);
 		el.textContent = 1 + (1 * el.textContent);
@@ -68,7 +65,7 @@ var broadcast = function (el) {
 
 var observer_fn = function (el) {
 	return function (event) {
-		el = DAL.id(el);
+		el = core.id(el);
 		if (el) {
 			el.textContent = event;
 		}
@@ -81,21 +78,21 @@ var observers = {
 	observer3: observer_fn('observer3')
 };
 
-var subscribe = function (subject, observer) {
+window.subscribe = function (subject, observer) {
 	subject = subjects[subject];
 	observer = observers[observer];
 	subject.attach(observer);
 };
 
-var unsubscribe = function (subject, observer) {
+window.unsubscribe = function (subject, observer) {
 	subject = subjects[subject];
 	observer = observers[observer];
 	subject.detach(observer);
 };
 
-//--></script>
+</script>
 
-<style type="text/css" media="all"><!--
+<style>
 #script {
 	color: #003;
 	background: #FFC;
@@ -118,7 +115,7 @@ var unsubscribe = function (subject, observer) {
 */
 	display: none;
 }
---></style>
+</style>
 </head>
 <body>
 

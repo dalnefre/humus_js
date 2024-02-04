@@ -2,31 +2,22 @@
  * core_test.js -- core.js unit tests
  *
  * author: Dale Schumacher <dale.schumacher@gmail.com>
- * requires: core.js, test.js
  */
 
-if (typeof DALNEFRE === 'undefined') {
-	throw Error('Namespace "DALNEFRE" required!');
-}
-if (typeof DALNEFRE.Test === 'undefined') {
-	throw Error('Namespace "DALNEFRE.Test" required!');
-}
-if (typeof DALNEFRE.testSuite !== 'undefined') {
-	throw Error('Module "DALNEFRE.testSuite" already defined!');
-}
+import core from "./core.js";
+import Test from "./test.js";
 
-DALNEFRE.testSuite = function (callback) {
-	var DAL = DALNEFRE;  // shorter alias
-	var suite = DAL.Test.Suite();
+var testSuite = function (callback) {
+	var suite = Test.Suite();
 	var test = suite.test;
 	var fail = suite.fail;
 	var assertEqual = suite.assertEqual;
-	var id = DAL.id;
-    var equal = DAL.equal;
-	var Dictionary = DAL.Dictionary;
-	var Set = DAL.Set;
-	var Queue = DAL.Queue;
-	var HtmlBuilder = DAL.HtmlBuilder;
+	var id = core.id;
+    var equal = core.equal;
+	var Dictionary = core.Dictionary;
+	var Set = core.Set;
+	var Queue = core.Queue;
+	var HtmlBuilder = core.HtmlBuilder;
 
 	test('assert/fail', function () {
 		assertEqual(0, 0);
@@ -222,12 +213,13 @@ DALNEFRE.testSuite = function (callback) {
 	return suite.getResult(callback);
 };
 
-DALNEFRE.run_tests = function () {
-	var DAL = DALNEFRE;  // shorter alias
-	var log = DAL.log;  // log to info channel
+var run_tests = function () {
+	var log = core.log;  // log to info channel
 
-	log('DALNEFRE(core) v' + DAL.version);
-	DAL.testSuite(function (result) {
+	log('DALNEFRE(core) v' + core.version);
+	testSuite(function (result) {
 		log(result.formatted('Core suite: '));
 	});
 };
+
+export default Object.freeze({testSuite, run_tests});

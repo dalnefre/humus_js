@@ -2,42 +2,27 @@
  * humus_test.js -- humus.js unit tests
  *
  * author: Dale Schumacher <dale.schumacher@gmail.com>
- * requires: core.js, actor.js, humus.js, gen_meta.js, test.js
  */
 
-if (typeof DALNEFRE === 'undefined') {
-	throw Error('Namespace "DALNEFRE" required!');
-}
-if (typeof DALNEFRE.Actor === 'undefined') {
-	throw Error('Namespace "DALNEFRE.Actor" required!');
-}
-if (typeof DALNEFRE.Humus === 'undefined') {
-	throw Error('Namespace "DALNEFRE.Humus" required!');
-}
-if (typeof DALNEFRE.Humus.Gen_Meta === 'undefined') {
-	throw Error('Namespace "DALNEFRE.Humus.Gen_Meta" required!');
-}
-if (typeof DALNEFRE.Test === 'undefined') {
-	throw Error('Namespace "DALNEFRE.Test" required!');
-}
-if (typeof DALNEFRE.Humus.testSuite !== 'undefined') {
-	throw Error('Module "DALNEFRE.Humus.testSuite" already defined!');
-}
+ import core from "./core.js";
+ import Actor from "./actor.js";
+ import Humus from "./humus.js";
+ import gen_meta from "./gen_meta.js";
+ import Test from "./test.js";
 
-DALNEFRE.Humus.testSuite = function (callback) {
-	var DAL = DALNEFRE;  // shorter alias
-	var log = DAL.trace;  // log to trace channel
-	var trace = DAL.trace;
-	var debug = DAL.debug;
-	var Dictionary = DAL.Dictionary;
-	var Config = DAL.Actor.Config;
-	var sink_beh = DAL.Actor.sink_beh;
+function testSuite(callback) {
+	var log = core.trace;  // log to trace channel
+	var trace = core.trace;
+	var debug = core.debug;
+	var Dictionary = core.Dictionary;
+	var Config = Actor.Config;
+	var sink_beh = Actor.sink_beh;
 	var Msg = Dictionary;  // local alias
-	var HUM = DAL.Humus;  // shorter alias
+	var HUM = Humus;  // shorter alias
 	var UNDEF = HUM.UNDEF;
 	var NIL = HUM.NIL;
 	var Pr = HUM.Pr;
-	var suite = DAL.Test.Suite();
+	var suite = Test.Suite();
 	var asyncTest = function (name, test_fn) {
 		suite.asyncTest(name, function () {
 			log('... '+name+' ...');
@@ -87,7 +72,7 @@ DALNEFRE.Humus.testSuite = function (callback) {
 	test('mock Actor', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var mock;
 		
@@ -111,7 +96,7 @@ DALNEFRE.Humus.testSuite = function (callback) {
 	test('const expr', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var empty_env_beh = GEN.empty_env_beh;
 		var const_expr_beh = GEN.const_expr_beh;
 		var empty_env = cfg.create(empty_env_beh, 'empty_env');
@@ -140,7 +125,7 @@ DALNEFRE.Humus.testSuite = function (callback) {
 	test('ident expr', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
 		var ident_expr_beh = GEN.ident_expr_beh;
@@ -182,7 +167,7 @@ SEND (println, #eval, undef_env) TO
 	test('identity function', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var abs_expr_beh = GEN.abs_expr_beh;
@@ -245,7 +230,7 @@ SEND (println, #eval, undef_env) TO
 	test('true conditional function', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var const_expr_beh = GEN.const_expr_beh;
@@ -330,7 +315,7 @@ CREATE global_env WITH env_beh(
 	test('zero? = \\x.CASE x OF ... END', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
@@ -477,7 +462,7 @@ CREATE eq? WITH closure_beh(
 	test('eq? = \\x.\\y.CASE y OF ... END', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
@@ -588,7 +573,7 @@ CREATE expr WITH pair_expr_beh(
 	test('LET z = 0 IN (1, z)', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
@@ -647,7 +632,7 @@ CREATE pr WITH abs_expr_beh(
 	test('pr = \\(a, b).\\c.(c(a, b))', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
@@ -895,7 +880,7 @@ LET x = 1 IN
 	test('LET x = 1 IN LET (0, $x, y) = (0, 1, 2, 3) IN (x, y)', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
@@ -1005,7 +990,7 @@ LET odd? = \n.(
 	test('Odd/Even Example', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
@@ -1248,7 +1233,7 @@ SEND 42 TO assert_eq_42
 	test('SEND statement', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
@@ -1297,7 +1282,7 @@ SEND 42 TO assert_eq_42
 	test('Label behavior', function () {
 		var self = this;
 		var cfg = Config();
-		var GEN = HUM.Gen_Meta(cfg);  // select generator
+		var GEN = gen_meta(cfg);  // select generator
 		var Actor = GEN.Actor;
 		var empty_env_beh = GEN.empty_env_beh;
 		var env_beh = GEN.env_beh;
@@ -1437,12 +1422,13 @@ SEND 42 TO assert_eq_42
 	return suite.getResult(callback);
 };
 
-DALNEFRE.Humus.run_tests = function () {
-	var DAL = DALNEFRE;  // shorter alias
-	var log = DAL.log;  // log to info channel
+function run_tests() {
+	var log = core.log;  // log to info channel
 
-	log('DALNEFRE(Humus) v' + DAL.Humus.version);
-	DAL.Humus.testSuite(function (result) {
+	log('core(Humus) v' + Humus.version);
+	testSuite(function (result) {
 		log(result.formatted('Humus suite: '));
 	});
 };
+
+export default Object.freeze({testSuite, run_tests});
