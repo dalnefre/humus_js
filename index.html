@@ -148,7 +148,13 @@ var {
 		</div>
 		<dl id="panel-4" style="display: block;">
 			<dt><code>println</code></dt>
-				<dd>An actor that prints to the console any message received</dd>
+				<dd>An actor that receives <strong>any</strong> message, and prints it to the console</dd>
+			<dt><code>timer</code></dt>
+				<dd>An actor that receives <code>(<var>dt</var>, <var>msg</var>, <var>actor</var>)</code>,
+					and sends <var>msg</var> to <var>actor</var> after <var>dt</var> milliseconds</dd>
+			<dt><code>random</code></dt>
+				<dd>An actor that receives <code>(<var>cust</var>, <var>n</var>)</code>,
+					and sends <var>cust</var> a random number from 0 to <var>n</var>-1</dd>
 			<dt><code>eq(<var>value</var>, <var>value</var>)</code></dt>
 				<dd>Value equality produces a <var>boolean</var></dd>
 			<dt><code>not(<var>boolean</var>)</code><br />
