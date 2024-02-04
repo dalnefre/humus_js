@@ -54,8 +54,18 @@ var {
 	<div id="guide">
 		<h2>Quick Reference</h2>
 		<p>Refer to the <a href="http://www.dalnefre.com/wp/humus/humus-overview/">Humus language overview</a> for more detail.</p>
-		<h3>Statements</h3>
-		<dl>
+		<div style="display: flex; margin-top: 24px;" onclick="toggle_panel(1);">
+			<svg id="open-1" style="display: block;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 11 3 3 3-3"></path>
+			</svg>
+			<svg id="close-1" style="display: none;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 13 3-3 3 3"></path>
+			</svg>
+			<h3 style="margin: 1px 5px;">Statements</h3>
+		</div>
+		<dl id="panel-1" style="display: none;">
 			<dt>Define Variable(s)</dt>
 				<dd><code>DEF <var>pattern</var> AS <var>expression</var></code></dd>
 			<dt>Define Function</dt>
@@ -71,8 +81,18 @@ var {
 			<dt>Execute Statement Block</dt>
 				<dd><var>expression</var></dd>
 		</dl>
-		<h3>Expressions</h3>
-		<dl>
+		<div style="display: flex; margin-top: 24px;" onclick="toggle_panel(2);">
+			<svg id="open-2" style="display: block;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 11 3 3 3-3"></path>
+			</svg>
+			<svg id="close-2" style="display: none;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 13 3-3 3 3"></path>
+			</svg>
+			<h3 style="margin: 1px 5px;">Expressions</h3>
+		</div>
+		<dl id="panel-2" style="display: none;">
 			<dt>Constant</dt>
 				<dd><code>TRUE</code>, <code>FALSE</code>, <code>NIL</code>, or <code>?</code></dd>
 			<dt>This Actor</dt>
@@ -92,8 +112,18 @@ var {
 			<dt>Statement Block</dt>
 				<dd><code>[ <var>statement...</var> ]</code></dd>
 		</dl>
-		<h3>Patterns</h3>
-		<dl>
+		<div style="display: flex; margin-top: 24px;" onclick="toggle_panel(3);">
+			<svg id="open-3" style="display: block;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 11 3 3 3-3"></path>
+			</svg>
+			<svg id="close-3" style="display: none;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 13 3-3 3 3"></path>
+			</svg>
+			<h3 style="margin: 1px 5px;">Patterns</h3>
+		</div>
+		<dl id="panel-3" style="display: none;">
 			<dt>Literal</dt>
 				<dd><code>TRUE</code>, <code>FALSE</code>, <code>NIL</code>, <code>?</code>, <var>number</var>, or <var>symbol</var></dd>
 			<dt>This Actor</dt>
@@ -105,8 +135,18 @@ var {
 			<dt>Value</dt>
 				<dd><code>$</code><var>name</var> or <code>$(</code><var>expression</var><code>)</code></dd>
 		</dl>
-		<h3>Built-Ins</h3>
-		<dl>
+		<div style="display: flex; margin-top: 24px;" onclick="toggle_panel(4);">
+			<svg id="open-4" style="display: none;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 11 3 3 3-3"></path>
+			</svg>
+			<svg id="close-4" style="display: block;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 13 3-3 3 3"></path>
+			</svg>
+			<h3 style="margin: 1px 5px;">Built-Ins</h3>
+		</div>
+		<dl id="panel-4" style="display: block;">
 			<dt><code>println</code></dt>
 				<dd>An actor that prints to the console any message received</dd>
 			<dt><code>eq(<var>value</var>, <var>value</var>)</code></dt>
@@ -128,6 +168,7 @@ var {
 			<code>greater_equal(<var>number</var>, <var>number</var>)</code><br />
 			<code>greater(<var>number</var>, <var>number</var>)</code></dt>
 				<dd>Numeric predicates produce a <var>boolean</var> or <code>?</code></dd>
+		</dl>
 <!--
 	env = GEN.Actor(GEN.repl_env_beh({
 		'versions':
@@ -181,7 +222,6 @@ var {
 		'compare':
 			GEN.Actor(GEN.native_fn_beh(compare_fn), 'compare_fn')
 -->
-		</dl>
 	</div>
 </div>
 
@@ -242,5 +282,10 @@ window.toggle_display = function (id) {
 		}
 	}
 };
+window.toggle_panel = function (num) {
+	window.toggle_display('open-' + num);
+	window.toggle_display('close-' + num);
+	window.toggle_display('panel-' + num);
+}
 </script>
 </html>
