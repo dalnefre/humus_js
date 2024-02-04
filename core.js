@@ -5,7 +5,7 @@
  * website: dalnefre.com
  */
 
-var version = '0.5.2 2011-01-18';
+var version = '0.8.1 2024-02-03';
 var id = function (el) {  // shorthand element lookup
 	if (typeof el === 'string') {
 		el = document.getElementById(el);

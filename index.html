@@ -20,14 +20,25 @@
 	padding: 0 0.5em;
 	display: none;
 }
+pre, code {
+    color: darkblue;
+}
+code {
+	color: darkblue;
+	font-size: 100%;
+}
+var {
+    font-family: Palatino, 'Times New Roman', Times, serif;
+    font-style: italic;
+}
 </style>
 </head>
 <body>
 
 <div style="float:right">
-<div style="margin:.5em;">
-<button id="halt-btn" onclick="halt_runtime();">Halt</button>
-</div>
+	<div style="margin:.5em;">
+		<button id="halt-btn" onclick="halt_runtime();">Halt</button>
+	</div>
 </div>
 
 <h1><a href="http://dalnefre.com/wp/humus/">Humus</a> Simulator/Debugger</h1>
@@ -36,17 +47,77 @@
 
 <button id="exec-btn" onclick="exec_script('script');">Execute</button>
 
-<form id="editor" action="#">
-<textarea id="script" name="script" rows="60" cols="72"></textarea>
-</form>
+<div style="display: flex;">
+	<form id="editor" action="#">
+		<textarea id="script" name="script" rows="60" cols="72"></textarea>
+	</form>
+	<div id="guide">
+		<h2>Quick Reference</h2>
+		<p>Refer to the <a href="http://www.dalnefre.com/wp/humus/humus-overview/">Humus language overview</a> for more detail.</p>
+		<h3>Statements</h3>
+		<dl>
+			<dt>Create an Actor</dt>
+				<dd><code>CREATE <var>name</var> WITH <var>behavior</var></code></dd>
+			<dt>Send a Message</dt>
+				<dd><code>SEND <var>message</var> TO <var>actor</var></code></dd>
+			<dt>Update Behavior</dt>
+				<dd><code>BECOME <var>behavior</var></code></dd>
+			<dt>Define Variable(s)</dt>
+				<dd><code>DEF <var>pattern</var> AS <var>expression</var></code></dd>
+			<dt>Abort Message-Event Transaction</dt>
+				<dd><code>THROW <var>expression</var></code></dd>
+			<dt>Execute Statement Block</dt>
+				<dd><var>expression</var></dd>
+		</dl>
+		<h3>Expressions</h3>
+		<dl>
+			<dt>Constant</dt>
+				<dd><code>TRUE</code>, <code>FALSE</code>, <code>NIL</code>, <code>?</code></dd>
+			<dt>(Integer) Number</dt>
+				<dd><var>digits</var><sup>*</sup> or <var>radix</var><code>#</code><var>digits</var><sup>*</sup></dd>
+			<dt>Symbol</dt>
+				<dd><code>#</code><var>name</var></dd>
+			<dt>Pairing and Grouping</dt>
+				<dd><code>1, 2, 3</code> is equivalent to <code>(1, (2, 3))</code>, and <code>()</code> is <code>NIL</code></dd>
+			<dt>(Lambda) Abstraction</dt>
+				<dd><code>\<var>pattern</var>.<var>expression</var></code></dd>
+			<dt>(Function) Application</dt>
+				<dd><code><var>abstraction</var>(<var>expression</var>)</code></dd>
+			<dt>Conditional</dt>
+				<dd><code>CASE <var>value</var> OF <var>pattern</var> : <var>expression</var> <i>...</i> END</code></dd>
+			<dt>Statement Block</dt>
+				<dd><code>[ <var>statement...</var> ]</code></dd>
+		</dl>
+		<h3>Patterns</h3>
+		<dl>
+			<dt>Literal</dt>
+				<dd><code>TRUE</code>, <code>FALSE</code>, <code>NIL</code>, <code>?</code>, <var>number</var>, or <var>symbol</var></dd>
+			<dt>Variable</dt>
+				<dd><var>name</var> or <code>_</code> to ignore</dd>
+			<dt>Tuple</dt>
+				<dd><var>pattern</var><code>, </code><var>pattern</var> <i>...</i></dd>
+			<dt>Value</dt>
+				<dd><code>$</code><var>name</var> or <code>$(</code><var>expression</var><code>)</code></dd>
+		</dl>
+		<h3>Built-Ins</h3>
+		<dl>
+			<dt><code>println</code></dt>
+				<dd>An actor that prints to the console any message received.</dd>
+			<dt><code>add(<var>number</var>, <var>number</var>)</code><br />
+			<code>sub(<var>number</var>, <var>number</var>)</code><br />
+			<code>mul(<var>number</var>, <var>number</var>)</code></dt>
+				<dd>Arithmetic operations produce a <var>number</var> or <code>?</code>.</dd>
+		</dl>
+	</div>
+</div>
 
 <pre id="log"></pre>
 
 <div style="margin:.5em;">
-<button id="debug-btn" onclick="toggle_display('debug');">Debug</button>
-<button id="trace-btn" onclick="toggle_display('trace');">Trace</button>
-<button id="meta-btn" onclick="select_meta();">Meta</button>
-<button id="json-btn" onclick="select_json();">Json</button>
+	<button id="debug-btn" onclick="toggle_display('debug');">Debug</button>
+	<button id="trace-btn" onclick="toggle_display('trace');">Trace</button>
+	<button id="meta-btn" onclick="select_meta();">Meta</button>
+	<button id="json-btn" onclick="select_json();">Json</button>
 </div>
 
 <pre id="debug">

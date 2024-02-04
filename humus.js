@@ -4,10 +4,10 @@
  * author: Dale Schumacher <dale.schumacher@gmail.com>
  */
 
- import core from "./core.js";
- import Actor from "./Actor.js";
+import core from "./core.js";
+//import Actor from "./actor.js";
 
-var version = '0.8.0 2024-01-29';
+var version = '0.8.1 2024-02-03';
 var equal = core.equal;
 //	var log = core.log;
 //	var debug = function (msg) {

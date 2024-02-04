@@ -7,7 +7,7 @@
 
  import core from "./core.js";
 
-var version = '0.5.5 2011-09-27';
+var version = '0.8.1 2024-02-03';
 var log = core.log;
 var debug = core.debug;
 //	var trace = function (msg) { /*disabled*/ };

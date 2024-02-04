@@ -6,7 +6,7 @@
 
 import core from "./core.js";
 
-var version = '0.4.2 2011-01-13';
+var version = '0.8.1 2024-02-03';
 var equal = core.equal;
 var log = core.debug;  // log messages to debug channel
 var Dictionary = core.Dictionary;

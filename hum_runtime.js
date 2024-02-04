@@ -9,7 +9,7 @@ import Actor from "./actor.js";
 import Humus from "./humus.js";
 import hum_xlat from "./hum_xlat.js";
 
-var version = '0.7.7 2022-02-05';
+var version = '0.8.1 2024-02-03';
 var warn = core.debug;
 var equal = core.equal;
 var HUM = Humus;
