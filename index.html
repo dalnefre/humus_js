@@ -56,14 +56,16 @@ var {
 		<p>Refer to the <a href="http://www.dalnefre.com/wp/humus/humus-overview/">Humus language overview</a> for more detail.</p>
 		<h3>Statements</h3>
 		<dl>
-			<dt>Create an Actor</dt>
+			<dt>Define Variable(s)</dt>
+				<dd><code>DEF <var>pattern</var> AS <var>expression</var></code></dd>
+			<dt>Define Function</dt>
+				<dd><code>DEF <var>name</var>(<var>pattern</var>) AS <var>expression</var></code></dd>
+			<dt>Create Actor</dt>
 				<dd><code>CREATE <var>name</var> WITH <var>behavior</var></code></dd>
-			<dt>Send a Message</dt>
+			<dt>Send Message</dt>
 				<dd><code>SEND <var>message</var> TO <var>actor</var></code></dd>
 			<dt>Update Behavior</dt>
 				<dd><code>BECOME <var>behavior</var></code></dd>
-			<dt>Define Variable(s)</dt>
-				<dd><code>DEF <var>pattern</var> AS <var>expression</var></code></dd>
 			<dt>Abort Message-Event Transaction</dt>
 				<dd><code>THROW <var>expression</var></code></dd>
 			<dt>Execute Statement Block</dt>
@@ -73,6 +75,8 @@ var {
 		<dl>
 			<dt>Constant</dt>
 				<dd><code>TRUE</code>, <code>FALSE</code>, <code>NIL</code>, or <code>?</code></dd>
+			<dt>This Actor</dt>
+				<dd><code>SELF</code></dd>
 			<dt>(Integer) Number</dt>
 				<dd><var>digits</var><sup>*</sup> or <var>radix</var><code>#</code><var>digits</var><sup>*</sup></dd>
 			<dt>Symbol</dt>
@@ -92,6 +96,8 @@ var {
 		<dl>
 			<dt>Literal</dt>
 				<dd><code>TRUE</code>, <code>FALSE</code>, <code>NIL</code>, <code>?</code>, <var>number</var>, or <var>symbol</var></dd>
+			<dt>This Actor</dt>
+				<dd><code>SELF</code></dd>
 			<dt>Variable</dt>
 				<dd><var>name</var> or <code>_</code> to ignore</dd>
 			<dt>Tuple</dt>
