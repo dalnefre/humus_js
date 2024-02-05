@@ -49,11 +49,33 @@ var {
 
 <div style="display: flex;">
 	<form id="editor" action="#">
-		<textarea id="script" name="script" rows="60" cols="72"></textarea>
+		<textarea id="script" name="script" rows="60" cols="72">
+#
+# Fibonacci example
+#
+
+DEF fib_beh(m) AS \(cust, n).[
+    CASE less(n, m) OF
+    FALSE : [
+        SEND (k_fib, sub(n, 1)) TO SELF
+        SEND (k_fib, sub(n, 2)) TO SELF
+        CREATE k_fib WITH \a.[
+            BECOME \b.[
+                SEND add(a, b) TO cust
+            ]
+        ]
+    ]
+    _ : [ SEND n TO cust ]
+    END
+]
+
+CREATE fib WITH fib_beh(2)
+SEND (println, 6) TO fib
+</textarea>
 	</form>
 	<div id="guide">
 		<h2>Quick Reference</h2>
-		<p>Refer to the <a href="http://www.dalnefre.com/wp/humus/humus-overview/">Humus language overview</a> for more detail.</p>
+		<p>See the <a href="http://www.dalnefre.com/wp/humus/humus-overview/" target="_blank" rel="noopener noreferrer">Humus language overview</a> for more detail.</p>
 		<div style="display: flex; margin-top: 24px;" onclick="toggle_panel(1);">
 			<svg id="open-1" style="display: block;" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
 				<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
@@ -98,7 +120,7 @@ var {
 			<dt>This Actor</dt>
 				<dd><code>SELF</code></dd>
 			<dt>(Integer) Number</dt>
-				<dd><var>digits</var><sup>*</sup> or <var>radix</var><code>#</code><var>digits</var><sup>*</sup></dd>
+				<dd>[<code>-</code>]<var>digits</var><sup>*</sup> or <var>radix</var><code>#</code><var>digits</var><sup>*</sup></dd>
 			<dt>Symbol</dt>
 				<dd><code>#</code><var>name</var></dd>
 			<dt>Pairing and Grouping</dt>
