@@ -190,66 +190,13 @@ SEND (println, 6) TO fib
 			<code>div(<var>number</var>, <var>number</var>)</code></dt>
 				<dd>Arithmetic operations produce a <var>number</var> or <code>?</code></dd>
 			<dt><code>compare(<var>number</var>, <var>number</var>)</code></dt>
-				<dd>Numeric comparison produces <code>-1</code> if &lt;, <code>0</code> if =, <code>1</code> if &gt;</dd>
+				<dd>Numeric comparison produces <code>-1</code> if &lt;, <code>0</code> if =, <code>1</code> if &gt;, or <code>?</code></dd>
 			<dt><code>less(<var>number</var>, <var>number</var>)</code><br />
 			<code>less_equal(<var>number</var>, <var>number</var>)</code><br />
 			<code>greater_equal(<var>number</var>, <var>number</var>)</code><br />
 			<code>greater(<var>number</var>, <var>number</var>)</code></dt>
 				<dd>Numeric predicates produce a <var>boolean</var> or <code>?</code></dd>
 		</dl>
-<!--
-	env = GEN.Actor(GEN.repl_env_beh({
-		'versions':
-			Pr( 'Xlat v'+XLAT.version,
-				Pr( 'GEN v'+GEN.version,
-					Pr( 'Runtime v'+version,
-						'Humus v'+HUM.version
-					)
-				)
-			),
-		'sink':
-			GEN.Actor(GEN.upcall_beh(cfg.sink), '^sink'),
-		'random': d_random,
-		'timer': d_timer,
-		'println': d_println,
-		'map_empty': f_map_empty,
-		'map_bind':
-			GEN.Actor(GEN.native_fn_beh(map_bind_fn), 'map_bind_fn'),
-		'tuple_to_symbol':
-			GEN.Actor(GEN.native_fn_beh(tuple_to_symbol_fn), 'tuple_to_symbol_fn'),
-		'tuple_to_number':
-			GEN.Actor(GEN.native_fn_beh(tuple_to_number_fn), 'tuple_to_number_fn'),
-		'in_range_set':
-			GEN.Actor(GEN.native_fn_beh(in_range_set_fn), 'in_range_set_fn'),
-		'less':
-			GEN.Actor(GEN.native_fn_beh(less_fn), 'less_fn'),
-		'less_equal':
-			GEN.Actor(GEN.native_fn_beh(less_equal_fn), 'less_equal_fn'),
-		'greater_equal':
-			GEN.Actor(GEN.native_fn_beh(greater_equal_fn), 'greater_equal_fn'),
-		'greater':
-			GEN.Actor(GEN.native_fn_beh(greater_fn), 'greater_fn'),
-		'not':
-			GEN.Actor(GEN.native_fn_beh(not_fn), 'not_fn'),
-		'or':
-			GEN.Actor(GEN.native_fn_beh(or_fn), 'or_fn'),
-		'and':
-			GEN.Actor(GEN.native_fn_beh(and_fn), 'and_fn'),
-		'neg':
-			GEN.Actor(GEN.native_fn_beh(neg_fn), 'neg_fn'),
-		'div':
-			GEN.Actor(GEN.native_fn_beh(div_fn), 'div_fn'),
-		'sub':
-			GEN.Actor(GEN.native_fn_beh(sub_fn), 'sub_fn'),
-		'mul':
-			GEN.Actor(GEN.native_fn_beh(mul_fn), 'mul_fn'),
-		'add':
-			GEN.Actor(GEN.native_fn_beh(add_fn), 'add_fn'),
-		'eq':
-			GEN.Actor(GEN.native_fn_beh(eq_fn), 'eq_fn'),
-		'compare':
-			GEN.Actor(GEN.native_fn_beh(compare_fn), 'compare_fn')
--->
 	</div>
 </div>
 
