@@ -26,10 +26,17 @@ var NIL = HUM.NIL;
 var Obj = HUM.Obj;
 var Pr = HUM.Pr;
 
+function clone(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
 var factory;
 var constructor = function Hum_Xlat(generator) {
 	var GEN = generator;  // local alias
-	var Actor = GEN.Actor;
+	var Actor = function Actor(beh, id) {
+		var a = GEN.Actor(beh, id);
+		return annotate(a);
+	};
 	var const_expr_beh = GEN.const_expr_beh;
 	var ident_expr_beh = GEN.ident_expr_beh;
 	var abs_expr_beh = GEN.abs_expr_beh;
@@ -189,6 +196,14 @@ var constructor = function Hum_Xlat(generator) {
 			token.error(match + ' expected.');
 		}
 		advance();
+	};
+	var annotate = function (actor) {
+		if (typeof actor === 'object') {
+			actor.debug = Obj({
+				token: clone(token)
+			});
+		}
+		return actor;
 	};
 	//
 	// Recognizers
