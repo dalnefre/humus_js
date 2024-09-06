@@ -207,6 +207,8 @@ var constructor = function Hum_Xlat(generator) {
 	//
 	var mk_stmt = function (scope) {
 		var first = clone(token);
+		var actor;
+
 		if (token.value === 'DEF') {
 			var ptrn, expr;
 
@@ -229,11 +231,7 @@ var constructor = function Hum_Xlat(generator) {
 				expect('AS');
 				expr = mk_expr();
 			}
-			var actor = Actor(def_stmt_beh(ptrn, expr), 'DEF');
-			return annotate(actor, {
-				first: first,
-				last: clone(token)
-			});
+			actor = Actor(def_stmt_beh(ptrn, expr), 'DEF');
 		} else if (token.value === 'LET') {
 			var eqtn;
 
@@ -246,11 +244,7 @@ var constructor = function Hum_Xlat(generator) {
 				expr = mk_expr();
 				return Actor(let_expr_beh(eqtn, expr), 'LET/IN');
 			}
-			var actor = Actor(let_stmt_beh(eqtn), 'LET');
-			return annotate(actor, {
-				first: first,
-				last: clone(token)
-			});
+			actor = Actor(let_stmt_beh(eqtn), 'LET');
 		} else if (token.value === 'SEND') {
 			var m_expr, a_expr;
 
@@ -258,11 +252,7 @@ var constructor = function Hum_Xlat(generator) {
 			m_expr = mk_expr();
 			expect('TO');
 			a_expr = mk_expr();
-			var actor = Actor(send_stmt_beh(m_expr, a_expr), 'SEND');
-			return annotate(actor, {
-				first: first,
-				last: clone(token)
-			});
+			actor = Actor(send_stmt_beh(m_expr, a_expr), 'SEND');
 		} else if (token.value === 'AFTER') {
 			var t_expr, m_expr, a_expr;
 
@@ -272,11 +262,7 @@ var constructor = function Hum_Xlat(generator) {
 			m_expr = mk_expr();
 			expect('TO');
 			a_expr = mk_expr();
-			var actor = Actor(send_stmt_beh(m_expr, a_expr, t_expr), 'AFTER/SEND');
-			return annotate(actor, {
-				first: first,
-				last: clone(token)
-			});
+			actor = Actor(send_stmt_beh(m_expr, a_expr, t_expr), 'AFTER/SEND');
 		} else if (token.value === 'CREATE') {
 			var ident, b_expr;
 
@@ -287,41 +273,29 @@ var constructor = function Hum_Xlat(generator) {
 			if (scope) {
 				scope.declare(ident);
 			}
-			var actor = Actor(create_stmt_beh(ident, b_expr), 'CREATE');
-			return annotate(actor, {
-				first: first,
-				last: clone(token)
-			});
+			actor = Actor(create_stmt_beh(ident, b_expr), 'CREATE');
 		} else if (token.value === 'BECOME') {
 			var b_expr;
 
 			advance();
 			b_expr = mk_expr();
-			var actor = Actor(become_stmt_beh(b_expr), 'BECOME');
-			return annotate(actor, {
-				first: first,
-				last: clone(token)
-			});
+			actor = Actor(become_stmt_beh(b_expr), 'BECOME');
 		} else if (token.value === 'THROW') {
 			var e_expr;
 
 			advance();
 			e_expr = mk_expr();
-			var actor = Actor(throw_stmt_beh(e_expr), 'THROW');
-			return annotate(actor, {
-				first: first,
-				last: clone(token)
-			});
+			actor = Actor(throw_stmt_beh(e_expr), 'THROW');
 		} else {
 			var expr;
 
 			expr = mk_expr();
-			var actor = Actor(expr_stmt_beh(expr), 'stmt:expr');
-			return annotate(actor, {
-				first: first,
-				last: clone(token)
-			});
+			actor = Actor(expr_stmt_beh(expr), 'stmt:expr');
 		}
+		return annotate(actor, {
+			first: first,
+			last: clone(token)
+		});
 	};
 	var mk_eqtn = function (scope) {
 		var ident, left, right;
@@ -364,6 +338,7 @@ var constructor = function Hum_Xlat(generator) {
 		});
 	};
 	var mk_pterm = function (scope) {
+		var first = clone(token);
 		var term;
 
 		if (token.value === '_') {
@@ -395,7 +370,10 @@ var constructor = function Hum_Xlat(generator) {
 		} else {
 			token.error('Pattern expected.');
 		}
-		return term;
+		return annotate(term, {
+			first: first,
+			last: clone(token)
+		});
 	};
 	var mk_const_ptrn = function () {
 		var t = token.type;
@@ -490,6 +468,7 @@ var constructor = function Hum_Xlat(generator) {
 		});
 	};
 	var mk_term = function () {
+		var first = clone(token);
 		var term, expr;
 
 		if (token.value === 'NEW') {
@@ -517,7 +496,10 @@ var constructor = function Hum_Xlat(generator) {
 		} else {
 			token.error('Term expected.');
 		}
-		return term;
+		return annotate(term, {
+			first: first,
+			last: clone(token)
+		});
 	};
 	var mk_call = function (term) {
 		var expr;
