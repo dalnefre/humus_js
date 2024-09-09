@@ -482,6 +482,10 @@ var constructor = function Hum_Xlat(generator) {
 
 			advance();
 			term = Actor(ident_expr_beh(ident), ident);
+			term = annotate(term, {
+				first: first,
+				last: clone(token)
+			});
 			term = mk_call(term);
 		} else if (token.value === '(') {  // grouping
 			advance();
