@@ -147,8 +147,8 @@ var constructor = function Hum_Xlat(generator) {
 		}
 		return token;
 	};
-	var tokenize = function (line, lineno) {  // tokenize line, adding to tokens[]
-		var s = line;
+	var tokenize = function (line, lineno, ofs) {  // tokenize line, adding to tokens[]
+		var s = line.slice();
 		var p =
 /(\s*)([#$(),.:;=\[\\\]λ]|'(\\.|[^\\'])'|"(\\.|[^\\"])*"|\d+#\w+|[^#$(),.:;=\[\\\]λ\s]+)/g
 		var r;
@@ -165,6 +165,8 @@ var constructor = function Hum_Xlat(generator) {
 
 			tokens.push(
 				token_type(Obj({
+					start_ofs: ofs + (i - t.length),
+					end_ofs: ofs + i,
 					lineno: lineno,
 					start: i - t.length,
 					end: i,
@@ -668,14 +670,17 @@ var constructor = function Hum_Xlat(generator) {
     var parse = function (script) {
         var lines = script.split('\n');
         var lineno = 0;
+        var ofs = 0;
 
         token = start;
         tokens = [];
         while (lineno < lines.length) {
-            tokenize(lines[lineno], lineno + 1);
+        	var line = lines[lineno];
+            tokenize(line, lineno + 1, ofs);
             lineno += 1;
+            ofs += line.length + 1;
         }
-        return tokens.join('\n');
+        return tokens/*.join('\n')*/;
     };
     var compile = function () {
         var actor;
