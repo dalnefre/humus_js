@@ -217,14 +217,20 @@ var constructor = function Hum_Xlat(generator) {
 			advance();
 			if ((token.type === 'symbol')
 			 &&	(lookahead().value === '(')) {  // function definition -> rewrite
+			 	var p_first = clone(token);
 				var ident = token.value;
 
 				advance();
 				ptrn = mk_ptrn();
+				var p_last = clone(token);
 				expect('AS');
 				expr = mk_expr();
 				expr = Actor(abs_expr_beh(ptrn, expr), 'abs');
 				ptrn = Actor(ident_ptrn_beh(ident), 'ptrn:'+ident);
+				ptrn = annotate(ptrn, {
+					first: p_first,
+					last: p_last
+				});
 				if (scope) {
 					scope.declare(ident);
 				}
