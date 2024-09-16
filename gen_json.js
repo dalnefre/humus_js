@@ -24,7 +24,11 @@ var Pr = HUM.Pr;
 
 var sink_beh = Actor.sink_beh;
 var const_expr_beh = function (value) {
-	value = JSON.parse(JSON.stringify(value));  // safe round-trip value
+	value = (
+		value === UNDEF
+		? null
+		: JSON.parse(JSON.stringify(value))  // safe round-trip value
+	);
 	return { "kind":"const_expr", "value":value }
 };
 var ident_expr_beh = function (ident) {
