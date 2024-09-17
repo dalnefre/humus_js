@@ -39,7 +39,7 @@ var Obj = (function () {
 	}
 	.subclass(Dictionary.class)
 	.method('error', function (msg) {
-		const e = Error(msg + ' ' + this);
+		const e = Error(msg);
 		e.subject = this;  // identify the subject of the error
 		throw e;
 	});

@@ -422,7 +422,7 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 						);
 					}
 				} catch (e) {
-					alert('compile: '+e);
+					alert('compile: '+e+'\n'+e.subject);
 				}
 			} else {
 				alert('status = '+status);
