@@ -531,7 +531,7 @@ var constructor = function Hum_Xlat(generator) {
 		return term;
 	};
 	var mk_if_else = function () {
-		var eqtn, expr;
+		var eqtn, expr, next;
 
 		if (token.value === 'ELSE') {
 			advance();
