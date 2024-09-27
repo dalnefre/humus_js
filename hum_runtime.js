@@ -47,6 +47,11 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 	var GEN = generator(cfg);
 	var XLAT = hum_xlat(GEN);
 	var env;
+	var FunActor = function (beh, id) {
+		var fn = GEN.Actor(beh, id);
+		fn.isFunction = true;  // mark "applicative" actors as "functions"
+		return fn;
+	};
 	var println_beh = function (id) {
 		id = id || 'output';
 		return function (msg) {
@@ -371,7 +376,7 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 	/*
 	LET map_empty = \_.?
 	*/
-	var f_map_empty = GEN.Actor(
+	var f_map_empty = FunActor(
 		function (msg) {
 			if (Pr.created(msg)) {
 				var cust = msg.hd;
@@ -401,7 +406,7 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 			var value = arg.tl.tl;
 
 			if (map === f_map_empty) {
-				map = GEN.Actor(function (msg) {
+				map = FunActor(function (msg) {
 					if (Pr.created(msg)) {
 						var cust = msg.hd;
 						var req = msg.tl;
@@ -470,17 +475,17 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 			}
 		}
 	};
-//		var a_logger = GEN.Actor(sink_beh, 'logger');
-	var a_logger = GEN.Actor(println_beh('debug'), 'logger');
-	var a_config = GEN.Actor(GEN.config_beh(a_logger), 'config');
-	var a_timer = GEN.Actor(timer_beh(a_config), 'timer');
+//		var a_logger = FunActor(sink_beh, 'logger');
+	var a_logger = FunActor(println_beh('debug'), 'logger');
+	var a_config = FunActor(GEN.config_beh(a_logger), 'config');
+	var a_timer = FunActor(timer_beh(a_config), 'timer');
 	var d_timer = GEN.Actor(GEN.upcall_beh(a_timer), '^timer');
 	var d_random = GEN.Actor(GEN.upcall_beh(
-		GEN.Actor(random_beh(a_config), 'random')
+		FunActor(random_beh(a_config), 'random')
 	), '^random');
-	var a_println = GEN.Actor(println_beh('output'), 'println');
+	var a_println = FunActor(println_beh('output'), 'println');
 	var d_println = GEN.Actor(GEN.upcall_beh(a_println), '^println');
-	var a_sponsor = GEN.Actor(GEN.repl_sponsor_beh(a_config, a_println), 'sponsor');
+	var a_sponsor = FunActor(GEN.repl_sponsor_beh(a_config, a_println), 'sponsor');
 	var env = GEN.Actor(GEN.empty_env_beh, 'empty_env');
 /*		core.log('initializing environment'); */
 	env = GEN.Actor(GEN.repl_env_beh({
@@ -499,51 +504,51 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 		'println': d_println,
 		'map_empty': f_map_empty,
 		'map_bind':
-			GEN.Actor(GEN.native_fn_beh(map_bind_fn), 'map_bind_fn'),
+			FunActor(GEN.native_fn_beh(map_bind_fn), 'map_bind_fn'),
 		'tuple_to_symbol':
-			GEN.Actor(GEN.native_fn_beh(tuple_to_symbol_fn), 'tuple_to_symbol_fn'),
+			FunActor(GEN.native_fn_beh(tuple_to_symbol_fn), 'tuple_to_symbol_fn'),
 		'tuple_to_number':
-			GEN.Actor(GEN.native_fn_beh(tuple_to_number_fn), 'tuple_to_number_fn'),
+			FunActor(GEN.native_fn_beh(tuple_to_number_fn), 'tuple_to_number_fn'),
 		'in_range_set':
-			GEN.Actor(GEN.native_fn_beh(in_range_set_fn), 'in_range_set_fn'),
+			FunActor(GEN.native_fn_beh(in_range_set_fn), 'in_range_set_fn'),
 		'less':
-			GEN.Actor(GEN.native_fn_beh(less_fn), 'less_fn'),
+			FunActor(GEN.native_fn_beh(less_fn), 'less_fn'),
 		'less_equal':
-			GEN.Actor(GEN.native_fn_beh(less_equal_fn), 'less_equal_fn'),
+			FunActor(GEN.native_fn_beh(less_equal_fn), 'less_equal_fn'),
 		'greater_equal':
-			GEN.Actor(GEN.native_fn_beh(greater_equal_fn), 'greater_equal_fn'),
+			FunActor(GEN.native_fn_beh(greater_equal_fn), 'greater_equal_fn'),
 		'greater':
-			GEN.Actor(GEN.native_fn_beh(greater_fn), 'greater_fn'),
+			FunActor(GEN.native_fn_beh(greater_fn), 'greater_fn'),
 		'not':
-			GEN.Actor(GEN.native_fn_beh(not_fn), 'not_fn'),
+			FunActor(GEN.native_fn_beh(not_fn), 'not_fn'),
 		'or':
-			GEN.Actor(GEN.native_fn_beh(or_fn), 'or_fn'),
+			FunActor(GEN.native_fn_beh(or_fn), 'or_fn'),
 		'and':
-			GEN.Actor(GEN.native_fn_beh(and_fn), 'and_fn'),
+			FunActor(GEN.native_fn_beh(and_fn), 'and_fn'),
 		'is_boolean':
-			GEN.Actor(GEN.native_fn_beh(is_boolean_fn), 'is_boolean_fn'),
+			FunActor(GEN.native_fn_beh(is_boolean_fn), 'is_boolean_fn'),
 		'is_number':
-			GEN.Actor(GEN.native_fn_beh(is_number_fn), 'is_number_fn'),
+			FunActor(GEN.native_fn_beh(is_number_fn), 'is_number_fn'),
 		'is_function':
-			GEN.Actor(GEN.native_fn_beh(is_function_fn), 'is_function_fn'),
+			FunActor(GEN.native_fn_beh(is_function_fn), 'is_function_fn'),
 		'is_actor':
-			GEN.Actor(GEN.native_fn_beh(is_actor_fn), 'is_actor_fn'),
+			FunActor(GEN.native_fn_beh(is_actor_fn), 'is_actor_fn'),
 		'is_pair':
-			GEN.Actor(GEN.native_fn_beh(is_pair_fn), 'is_pair_fn'),
+			FunActor(GEN.native_fn_beh(is_pair_fn), 'is_pair_fn'),
 		'neg':
-			GEN.Actor(GEN.native_fn_beh(neg_fn), 'neg_fn'),
+			FunActor(GEN.native_fn_beh(neg_fn), 'neg_fn'),
 		'div':
-			GEN.Actor(GEN.native_fn_beh(div_fn), 'div_fn'),
+			FunActor(GEN.native_fn_beh(div_fn), 'div_fn'),
 		'sub':
-			GEN.Actor(GEN.native_fn_beh(sub_fn), 'sub_fn'),
+			FunActor(GEN.native_fn_beh(sub_fn), 'sub_fn'),
 		'mul':
-			GEN.Actor(GEN.native_fn_beh(mul_fn), 'mul_fn'),
+			FunActor(GEN.native_fn_beh(mul_fn), 'mul_fn'),
 		'add':
-			GEN.Actor(GEN.native_fn_beh(add_fn), 'add_fn'),
+			FunActor(GEN.native_fn_beh(add_fn), 'add_fn'),
 		'eq':
-			GEN.Actor(GEN.native_fn_beh(eq_fn), 'eq_fn'),
+			FunActor(GEN.native_fn_beh(eq_fn), 'eq_fn'),
 		'compare':
-			GEN.Actor(GEN.native_fn_beh(compare_fn), 'compare_fn')
+			FunActor(GEN.native_fn_beh(compare_fn), 'compare_fn')
 	}, env), 'repl_env');
 
 	cfg.send('v'+HUM.version+'\n', a_println);
