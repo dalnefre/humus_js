@@ -32,11 +32,6 @@ var NIL = {
 		return '<NIL>';
 	}
 };
-var UNIT = {
-	toString: function () {
-		return '<UNIT>';
-	}
-};
 var Obj = (function () {
 	var factory;
 	var constructor = function Obj(data) {

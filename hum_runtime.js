@@ -16,7 +16,6 @@ var HUM = Humus;
 var Pr = HUM.Pr;
 var UNDEF = HUM.UNDEF;
 var NIL = HUM.NIL;
-var UNIT = HUM.UNIT;
 var sink_beh = Actor.sink_beh;
 var random_range = function (lo, hi) {
 	var r;
@@ -493,7 +492,6 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 					)
 				)
 			),
-		'UNIT': UNIT,
 		'sink':
 			GEN.Actor(GEN.upcall_beh(cfg.sink), '^sink'),
 		'random': d_random,
