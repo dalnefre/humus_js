@@ -136,34 +136,34 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 		return UNDEF;
 	};
 	var is_boolean_fn = function (arg) {
-		if (arg === TRUE || arg === FALSE) {
-			return TRUE;
+		if (arg === true || arg === false) {
+			return true;
 		}
-		return FALSE;
+		return false;
 	};
 	var is_number_fn = function (arg) {
 		if (typeof arg === 'number') {
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	};
 	var is_function_fn = function (arg) {
 		if ((typeof arg === 'object') && (arg.isFunction)) {
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	};
 	var is_actor_fn = function (arg) {
 		if ((typeof arg === 'object') && (arg.isActor)) {
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	};
 	var is_pair_fn = function (arg) {
 		if (Pr.created(arg)) {
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	};
 	var neg_fn = function (arg) {
 		if (typeof arg === 'number') {
