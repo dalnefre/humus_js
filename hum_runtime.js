@@ -9,13 +9,14 @@ import Actor from "./actor.js";
 import Humus from "./humus.js";
 import hum_xlat from "./hum_xlat.js";
 
-var version = '0.8.1 2024-02-03';
+var version = '0.8.2 2024-09-27';
 var warn = core.debug;
 var equal = core.equal;
 var HUM = Humus;
 var Pr = HUM.Pr;
 var UNDEF = HUM.UNDEF;
 var NIL = HUM.NIL;
+var UNIT = HUM.UNIT;
 var sink_beh = Actor.sink_beh;
 var random_range = function (lo, hi) {
 	var r;
@@ -129,6 +130,36 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 		}
 		warn('and('+arg+') -> ?');
 		return UNDEF;
+	};
+	var is_boolean_fn = function (arg) {
+		if (arg === TRUE || arg === FALSE) {
+			return TRUE;
+		}
+		return FALSE;
+	};
+	var is_number_fn = function (arg) {
+		if (typeof arg === 'number') {
+			return TRUE;
+		}
+		return FALSE;
+	};
+	var is_function_fn = function (arg) {
+		if ((typeof arg === 'object') && (arg.isFunction)) {
+			return TRUE;
+		}
+		return FALSE;
+	};
+	var is_actor_fn = function (arg) {
+		if ((typeof arg === 'object') && (arg.isActor)) {
+			return TRUE;
+		}
+		return FALSE;
+	};
+	var is_pair_fn = function (arg) {
+		if (Pr.created(arg)) {
+			return TRUE;
+		}
+		return FALSE;
 	};
 	var neg_fn = function (arg) {
 		if (typeof arg === 'number') {
@@ -462,6 +493,7 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 					)
 				)
 			),
+		'UNIT': UNIT,
 		'sink':
 			GEN.Actor(GEN.upcall_beh(cfg.sink), '^sink'),
 		'random': d_random,
@@ -490,6 +522,16 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 			GEN.Actor(GEN.native_fn_beh(or_fn), 'or_fn'),
 		'and':
 			GEN.Actor(GEN.native_fn_beh(and_fn), 'and_fn'),
+		'is_boolean':
+			GEN.Actor(GEN.native_fn_beh(is_boolean_fn), 'is_boolean_fn'),
+		'is_number':
+			GEN.Actor(GEN.native_fn_beh(is_number_fn), 'is_number_fn'),
+		'is_function':
+			GEN.Actor(GEN.native_fn_beh(is_function_fn), 'is_function_fn'),
+		'is_actor':
+			GEN.Actor(GEN.native_fn_beh(is_actor_fn), 'is_actor_fn'),
+		'is_pair':
+			GEN.Actor(GEN.native_fn_beh(is_pair_fn), 'is_pair_fn'),
 		'neg':
 			GEN.Actor(GEN.native_fn_beh(neg_fn), 'neg_fn'),
 		'div':

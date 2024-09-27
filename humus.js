@@ -7,7 +7,7 @@
 import core from "./core.js";
 //import Actor from "./actor.js";
 
-var version = '0.8.1 2024-02-03';
+var version = '0.8.2 2024-09-27';
 var equal = core.equal;
 //	var log = core.log;
 //	var debug = function (msg) {
@@ -30,6 +30,11 @@ var UNDEF = {
 var NIL = {
 	toString: function () {
 		return '<NIL>';
+	}
+};
+var UNIT = {
+	toString: function () {
+		return '<UNIT>';
 	}
 };
 var Obj = (function () {

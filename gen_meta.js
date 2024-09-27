@@ -495,14 +495,13 @@ var abs_expr_beh = function (ptrn, body_expr) {
 			if (Pr.created(req)
 			 && (req.hd === 'eval')) {
 				var env = req.tl;
-
-				this.send(
-					this.create(
-						closure_beh(ptrn, body_expr, env),
-						'closure'
-					),
-					cust
+				var fn = this.create(
+					closure_beh(ptrn, body_expr, env),
+					'closure'
 				);
+
+				fn.isFunction = true;  // mark closure-actors as "functions"
+				this.send(fn, cust);
 			}
 		}
 	};
@@ -572,7 +571,7 @@ var app_expr_beh = function (abs_expr, arg_expr) {
 							var abs = abs_arg.hd;
 							var arg = abs_arg.tl;
 
-							if ((typeof abs !== 'object') || !abs.isActor) {
+							if ((typeof abs !== 'object') || !abs.isFunction) {
 								/* avoid "send requires an actor" error */
 								this.send(UNDEF, cust);
 							} else {

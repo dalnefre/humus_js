@@ -117,12 +117,14 @@ SEND (println, 6) TO fib
 		<dl id="panel-2" style="display: none;">
 			<dt>Constant</dt>
 				<dd><code>TRUE</code>, <code>FALSE</code>, <code>NIL</code>, or <code>?</code></dd>
-			<dt>This Actor</dt>
-				<dd><code>SELF</code></dd>
 			<dt>(Integer) Number</dt>
 				<dd>[<code>-</code>]<var>digits</var><sup>*</sup> or <var>radix</var><code>#</code><var>digits</var><sup>*</sup></dd>
 			<dt>Symbol</dt>
 				<dd><code>#</code><var>name</var></dd>
+			<dt>This Actor</dt>
+				<dd><code>SELF</code></dd>
+			<dt>New Actor</dt>
+				<dd><code>NEW <var>behavior</var></code></dd>
 			<dt>Pairing and Grouping</dt>
 				<dd><code>1, 2, 3</code> is equivalent to <code>(1, (2, 3))</code>, and <code>()</code> is <code>NIL</code></dd>
 			<dt>(Lambda) Abstraction</dt>
@@ -169,6 +171,8 @@ SEND (println, 6) TO fib
 			<h3 style="margin: 1px 5px;">Built-Ins</h3>
 		</div>
 		<dl id="panel-4" style="display: block;">
+			<dt><code>UNIT</code></dt>
+				<dd>Transfer of control with no data</dd>
 			<dt><code>println</code></dt>
 				<dd>An actor that receives <strong>any</strong> message, and prints it to the console</dd>
 			<dt><code>timer</code></dt>
@@ -183,6 +187,12 @@ SEND (println, 6) TO fib
 			<code>and(<var>boolean</var>, <var>boolean</var>)</code><br />
 			<code>or(<var>boolean</var>, <var>boolean</var>)</code></dt>
 				<dd>Boolean predicates produce a <var>boolean</var> or <code>?</code></dd>
+			<dt><code>is_boolean(<var>value</var>)</code><br />
+			<code>is_number(<var>value</var>)</code><br />
+			<code>is_function(<var>value</var>)</code><br />
+			<code>is_actor(<var>value</var>)</code><br />
+			<code>is_pair(<var>value</var>)</code></dt>
+				<dd>Type predicates produce a <var>boolean</var></dd>
 			<dt><code>neg(<var>number</var>)</code><br />
 			<code>add(<var>number</var>, <var>number</var>)</code><br />
 			<code>sub(<var>number</var>, <var>number</var>)</code><br />

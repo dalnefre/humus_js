@@ -7,7 +7,7 @@
 import core from "./core.js";
 import Humus from "./humus.js";
 
-var version = '0.8.1 2024-02-03';
+var version = '0.8.2 2024-09-17';
 //	var log = core.log;
 //	var debug = function (msg) {
 //		core.debug(msg);
