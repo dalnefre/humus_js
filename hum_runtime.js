@@ -225,6 +225,20 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 		warn('div('+arg+') -> ?');
 		return UNDEF;
 	};
+	var mod_fn = function (arg) {
+		if (Pr.created(arg)) {
+			var n = arg.hd;
+			var m = arg.tl;
+
+			if ((typeof n === 'number')
+			 && (typeof m === 'number')
+			 && (m !== 0)) {
+				return Math.abs(n % m);
+			}
+		}
+		warn('mod('+arg+') -> ?');
+		return UNDEF;
+	};
 	var eq_fn = function (arg) {
 		if (Pr.created(arg)) {
 			return equal(arg.hd, arg.tl);
@@ -539,6 +553,8 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 			FunActor(GEN.native_fn_beh(neg_fn), 'neg_fn'),
 		'div':
 			FunActor(GEN.native_fn_beh(div_fn), 'div_fn'),
+		'mod':
+			FunActor(GEN.native_fn_beh(mod_fn), 'mod_fn'),
 		'sub':
 			FunActor(GEN.native_fn_beh(sub_fn), 'sub_fn'),
 		'mul':
