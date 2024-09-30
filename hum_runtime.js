@@ -237,7 +237,7 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 			if ((typeof n === 'number')
 			 && (typeof m === 'number')
 			 && (m !== 0)) {
-				var r = Math.abs(n % m);
+				var r = n % m;
 				if (r < 0) {
 					r = 1 - r;
 				}
