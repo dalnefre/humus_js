@@ -219,7 +219,11 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 			if ((typeof n === 'number')
 			 && (typeof m === 'number')
 			 && (m !== 0)) {
-				return Math.floor(n / m);
+				var q = Math.floor(n / m);
+				if (m < 0) {
+					q += 1;
+				}
+				return q;
 			}
 		}
 		warn('div('+arg+') -> ?');
@@ -233,7 +237,11 @@ var constructor = function Runtime(generator) {  // e.g.: gen_meta
 			if ((typeof n === 'number')
 			 && (typeof m === 'number')
 			 && (m !== 0)) {
-				return Math.abs(n % m);
+				var r = Math.abs(n % m);
+				if (r < 0) {
+					r = 1 - r;
+				}
+				return r;
 			}
 		}
 		warn('mod('+arg+') -> ?');
