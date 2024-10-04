@@ -22,13 +22,16 @@ var NIL = HUM.NIL;
 //	var Obj = HUM.Obj;
 var Pr = HUM.Pr;
 
-var sink_beh = Actor.sink_beh;
-var const_expr_beh = function (value) {
-	value = (
+var safe_value = function (value) {
+	return (
 		value === UNDEF
 		? null
 		: JSON.parse(JSON.stringify(value))  // safe round-trip value
 	);
+};
+var sink_beh = Actor.sink_beh;
+var const_expr_beh = function (value) {
+	value = safe_value(value);
 	return { "kind":"const_expr", "value":value }
 };
 var ident_expr_beh = function (ident) {
@@ -74,7 +77,7 @@ var eqtn_beh = function (left_ptrn, right_ptrn) {
 	return { "kind":"eqtn", "left":left_ptrn, "right":right_ptrn }
 };
 var const_ptrn_beh = function (value) {
-	value = JSON.parse(JSON.stringify(value));  // safe round-trip value
+	value = safe_value(value);
 	return { "kind":"const_ptrn", "value":value }
 };
 var ident_ptrn_beh = function (ident) {
